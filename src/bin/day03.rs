@@ -1,7 +1,7 @@
-use ndarray::Array2; // 0.16.1
 use regex::Regex; // 1.11.1
 use itertools::Itertools; // 0.14.0
 use std::{collections::HashMap, error::Error};
+use advent_of_code_2023::text_to_grid;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let puzzle = include_str!("../../puzzles/day03.txt").trim();
@@ -42,18 +42,6 @@ fn solve(input: &str) -> Result<(u32, u32), Box<dyn Error>> {
     }
     let gear_ratio = part2.into_values().filter(|v| v.len() == 2).map(|v| v[0] * v[1]).sum();
     Ok((part1, gear_ratio))
-}
-
-fn text_to_grid(input: &str) -> Result<Array2<char>, Box<dyn Error>> {
-    let cols = input.lines().next().ok_or("malformed input")?.len();
-    let rows = input.lines().count();
-    let mut grid: Array2<char> = Array2::from_elem((rows, cols), '.');
-    for (i, line) in input.lines().enumerate() {
-        for (j, c) in line.chars().enumerate() {
-            grid[(i, j)] = c;
-        }
-    }
-    Ok(grid)
 }
 
 #[cfg(test)]
