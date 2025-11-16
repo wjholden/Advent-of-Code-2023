@@ -4,16 +4,18 @@ use std::error::Error;
 fn main() {
     let puzzle = include_str!("../../puzzles/day06.txt");
     println!("Part 1: {} ({})", part1(puzzle), quadratic(puzzle));
-    println!("Part 2: {} ({})", part2(puzzle), parse2(puzzle).unwrap().quadratic());
+    println!(
+        "Part 2: {} ({})",
+        part2(puzzle),
+        parse2(puzzle).unwrap().quadratic()
+    );
 }
 
 fn quadratic(input: &str) -> usize {
     parse1(input)
         .unwrap()
         .iter()
-        .map(|record| {
-            record.quadratic()
-        })
+        .map(|record| record.quadratic())
         .product()
 }
 
@@ -59,6 +61,16 @@ impl Record {
         let x2 = ((-b + (b.powi(2) - 4.0 * a * c).sqrt()) / (2.0 * a)).floor();
         let winners = (x1 - x2 - 1.0) as usize;
         winners
+    }
+
+    fn _vertex(&self) -> f64 {
+        // distance(h) = h(t-h) = -h²+ht+0
+        // distance'(h) = -2h+t
+        // distance'(h) = 0 = -2h+t → 2h=t → h=t/2
+        //
+        // See in Mathematica:
+        // Module[{t = 71530, d = 940200}, Plot[(t - h) h - d, {h, 0, t}]]
+        self.time as f64 / 2.0
     }
 }
 
@@ -118,6 +130,12 @@ Distance:  9  40  200";
 
     #[test]
     fn no_kerning() {
-        assert_eq!(parse2(SAMPLE).unwrap(), Record { time: 71530, distance: 940200 })
+        assert_eq!(
+            parse2(SAMPLE).unwrap(),
+            Record {
+                time: 71530,
+                distance: 940200
+            }
+        )
     }
 }

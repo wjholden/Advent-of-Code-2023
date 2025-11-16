@@ -1,0 +1,14 @@
+C-d	    editor: delete
+C-a	    editor: move to beginning of line
+C-e	    editor: move to end of line
+M-<	    editor: move to beginning
+M->	    editor: move to end
+C-n	    editor: move down
+C-p	    editor: move up
+C-f	    editor: move right
+C-b	    editor: move left
+M-f	    editor: move to next word end
+M-b	    editor: move to previous word start
+M-d	    editor: delete to next word end
+C-x h   editor: select all
+C-x C-s	workspace: save

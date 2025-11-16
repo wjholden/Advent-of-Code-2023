@@ -1,4 +1,3 @@
-use nom; // 7.1.3
 use nom::{bytes::complete::tag, character::complete::alpha1, multi::separated_list1, IResult, Parser};
 
 fn main() {
