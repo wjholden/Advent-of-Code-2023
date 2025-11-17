@@ -18,6 +18,7 @@ Well, now it's 2025 and I'm using Rust instead.
 6. `**` Calculus, worse-is-better
 7. `**` Comparators, refactoring, finite-state machines
 8. `**` Repeated loops (`cycle`), LCM (`num` crate)
+9. `**` Sequences, differentiation, in-place modification, triangular numbers
 
 # Libraries
 - [`num`](https://crates.io/crates/num)

@@ -1,14 +1,11 @@
 use std::{cmp::Ordering, collections::HashMap};
 
+use advent_of_code_2023::Part;
+
 fn main() {
     let puzzle = include_str!("../../puzzles/day07.txt");
     println!("Part 1: {}", solve(puzzle, Part::One));
     println!("Part 2: {}", solve(puzzle, Part::Two));
-}
-
-enum Part {
-    One,
-    Two,
 }
 
 fn solve(input: &str, part: Part) -> usize {

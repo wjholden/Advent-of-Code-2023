@@ -1,5 +1,5 @@
-use std::error::Error;
 use ndarray::Array2;
+use std::error::Error;
 
 pub fn text_to_grid(input: &str) -> Result<Array2<char>, Box<dyn Error>> {
     let cols = input.lines().next().ok_or("malformed input")?.len();
@@ -11,4 +11,9 @@ pub fn text_to_grid(input: &str) -> Result<Array2<char>, Box<dyn Error>> {
         }
     }
     Ok(grid)
+}
+
+pub enum Part {
+    One,
+    Two,
 }
