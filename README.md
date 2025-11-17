@@ -1,4 +1,4 @@
-= Advent of Code 2023
+# Advent of Code 2023
 
 2023 didn't go so well for me. It really didn't go at all. I did my first powerlifting meet on 2 December 2023.
 This obviously interfered with day 2, but it also messed me up for day 3, and somehow I just couldn't get myself
@@ -8,7 +8,7 @@ At the time, I had the best of intentions to practice Java in 2023.
 
 Well, now it's 2025 and I'm using Rust instead.
 
-= Daily Stars and Themes
+# Daily Stars and Themes
 
 1. `##`
 2. `**`
@@ -17,14 +17,16 @@ Well, now it's 2025 and I'm using Rust instead.
 5. `**`
 6. `**` Calculus, worse-is-better
 7. `**` Comparators, refactoring, finite-state machines
+8. `**` Repeated loops (`cycle`), LCM (`num` crate)
 
-= Libraries
+# Libraries
+- [`num`](https://crates.io/crates/num)
 
-= References
+# References
 
 - [A Comparison of Ada and Rust, using solutions to the Advent of Code](https://github.com/johnperry-math/AoC2023/blob/master/More_Detailed_Comparison.md)
 
-= Emacs-style keybindings for Zed
+# Emacs-style keybindings for Zed
 
 I'm trying Zed as a Rust IDE. I like that it's fast, and I like that it supports Emacs-style keybindings.
 However, I find myself in a strange position where I know enough Emacs-style keystrokes to enjoy those
