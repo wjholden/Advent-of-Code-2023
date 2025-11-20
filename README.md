@@ -18,10 +18,11 @@ Well, now it's 2025 and I'm using Rust instead.
 6. `**` Calculus, worse-is-better
 7. `**` Comparators, refactoring, finite-state machines
 8. `**` Repeated loops (`cycle`), LCM (`num` crate)
-9. `**` Sequences, differentiation, in-place modification, triangular numbers
+9. `**` Sequences, [differencing](https://otexts.com/fpp2/stationarity.html), in-place modification, triangular numbers
 
 # Libraries
 - [`num`](https://crates.io/crates/num)
+- [Zelen](https://crates.io/crates/zelen), a MiniZinc frontend for [Selen](https://github.com/radevgit/selen), a CSP solver.
 
 # References
 

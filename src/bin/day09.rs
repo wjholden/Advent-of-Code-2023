@@ -5,7 +5,7 @@ fn main() {
         histories.iter().map(|v| predict(v)).sum::<i128>()
     );
 
-    // This is such a clear idiom for mutating all elements of an array.
+    // This is a clear idiom for mutating all elements of an array.
     // https://stackoverflow.com/a/28651397/5459668
     for history in &mut histories {
         history.reverse();
