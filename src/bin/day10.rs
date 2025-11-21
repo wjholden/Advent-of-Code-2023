@@ -16,7 +16,15 @@ use num::Complex;
 /// tiles.
 ///
 /// Complex arithmetic wasn't as elegant as I had expected for today.
-
+///
+/// Looks like there were some much better approaches to this puzzle
+/// (https://www.reddit.com/r/adventofcode/comments/18f1sgh/2023_day_10_part_2_advise_on_part_2/):
+/// - [Scanline](https://www.reddit.com/r/adventofcode/comments/18f1sgh/comment/kcripvi/)
+/// (I tried this but couldn't think through all the cases)
+/// - [Pick's algorithm](https://www.reddit.com/r/adventofcode/comments/18f1sgh/comment/kcr8tyf/)
+/// to count the integer coordinates inside the pipe, and
+/// - [Shoelace formula](https://www.reddit.com/r/adventofcode/comments/18f1sgh/comment/kcugm6t/)
+/// for the area.
 fn main() {
     let pipes = Pipes::new(include_str!("../../puzzles/day10.txt"));
     let (part1, part2) = pipes.solve();
@@ -80,7 +88,7 @@ impl Pipes {
     pub fn new(input: &str) -> Self {
         let mut lines = input.trim().lines();
         let cols = lines.next().expect("first line from input").len();
-        let rows = lines.count();
+        let rows = lines.count() + 1;
         let mut area = HashMap::new();
 
         let mut start = None;

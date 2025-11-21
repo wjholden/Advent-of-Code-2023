@@ -20,6 +20,7 @@ Well, now it's 2025 and I'm using Rust instead.
 8. `**` Repeated loops (`cycle`), LCM (`num` crate)
 9. `**` Sequences, [differencing](https://otexts.com/fpp2/stationarity.html), in-place modification, triangular numbers
 10. `**` Paths, areas, BFS, right-hand rule from physics
+11. `**` Manhattan distance
 
 # Lessons learned
 - `cargo check` is a very fast way to check if your code would compile.
@@ -34,6 +35,11 @@ represent the puzzle as a large object, rather than parsing the input in a `part
 # References
 
 - [A Comparison of Ada and Rust, using solutions to the Advent of Code](https://github.com/johnperry-math/AoC2023/blob/master/More_Detailed_Comparison.md)
+- [Automatically Translating C to Rust](https://cacm.acm.org/research/automatically-translating-c-to-rust/)
+- [My MiniZinc page, by Hakan K.](https://www.hakank.org/minizinc/) (yes, I know this isn't Rust)
+- [Fast UDP I/O for Firefox in Rust](https://max-inden.de/post/fast-udp-io-in-firefox/)
+- [Humanity is stained by the sins of C and no LLM can rewrite them away to Rust](https://kirancodes.me/posts/log-sins-of-c.html)
+- [Patterns for Defensive Programming in Rust](https://corrode.dev/blog/defensive-programming/)
 
 # Emacs-style keybindings for Zed
 
