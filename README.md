@@ -19,6 +19,13 @@ Well, now it's 2025 and I'm using Rust instead.
 7. `**` Comparators, refactoring, finite-state machines
 8. `**` Repeated loops (`cycle`), LCM (`num` crate)
 9. `**` Sequences, [differencing](https://otexts.com/fpp2/stationarity.html), in-place modification, triangular numbers
+10. `**` Paths, areas, BFS, right-hand rule from physics
+
+# Lessons learned
+- `cargo check` is a very fast way to check if your code would compile.
+- I've been reaching for the object-oriented approach more and more. It's becoming more convenient to
+represent the puzzle as a large object, rather than parsing the input in a `part1` function.
+- See day 10 for examples of implementing the `Add`, `Mul`, and `Display` traits.
 
 # Libraries
 - [`num`](https://crates.io/crates/num)
