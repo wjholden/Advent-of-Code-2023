@@ -40,6 +40,8 @@ represent the puzzle as a large object, rather than parsing the input in a `part
 - [Fast UDP I/O for Firefox in Rust](https://max-inden.de/post/fast-udp-io-in-firefox/)
 - [Humanity is stained by the sins of C and no LLM can rewrite them away to Rust](https://kirancodes.me/posts/log-sins-of-c.html)
 - [Patterns for Defensive Programming in Rust](https://corrode.dev/blog/defensive-programming/)
+- [Cloudflare outage on November 18, 2025](https://blog.cloudflare.com/18-november-2025-outage/)
+- [Linus Torvalds Vents Over "Completely Crazy Rust Format Checking"](https://www.phoronix.com/news/Linus-Torvalds-Rust-Formatting)
 
 # Emacs-style keybindings for Zed
 
