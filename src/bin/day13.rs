@@ -4,12 +4,15 @@ use nalgebra::DMatrix;
 pub const PUZZLE: &str = include_str!("../../puzzles/day13.txt");
 
 /// Frustrating problems with lots of cases.
+///
+/// Type system for the win! I needed to be able to distinguish vertical from
+/// horizontal lines. Rust's enums really helped enforce correctness here.
 fn main() {
     let d = Puzzle::new(PUZZLE);
     let d = d.solve();
     println!("Part 1: {}", d.part1);
-    println!("Part 2: {}", d.part2); // 28957 too low
-    //println!("{:?}", Puzzle::time(PUZZLE));
+    println!("Part 2: {}", d.part2); // 28957 too low, 36010 also too low.
+    println!("{:?}", Puzzle::time(PUZZLE));
 }
 
 #[derive(Default, Debug)]
@@ -24,6 +27,7 @@ struct Pattern {
     mirrors: DMatrix<i8>,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 enum Orientation {
     Horizontal,
     Vertical,
@@ -38,7 +42,8 @@ enum Discovery<T> {
 }
 
 impl Pattern {
-    fn reflection_line(&self, line_direction: Orientation) -> Discovery<usize> {
+    fn reflection_line(&self, line_direction: Orientation) -> Vec<Discovery<usize>> {
+        let mut solutions = Vec::new();
         let n = match line_direction {
             Orientation::Horizontal => self.mirrors.nrows(),
             Orientation::Vertical => self.mirrors.ncols(),
@@ -79,13 +84,12 @@ impl Pattern {
                 di += 1;
             }
 
-            // If we made it to here then we've found a reflection line.
-            return match line_direction {
+            solutions.push(match line_direction {
                 Orientation::Horizontal => Discovery::HorizontalLine(i),
                 Orientation::Vertical => Discovery::VerticalLine(i),
-            };
+            });
         }
-        Discovery::Nothing
+        solutions
     }
 
     fn find_smudge(&self, line_direction: Orientation) -> Discovery<usize> {
@@ -148,142 +152,6 @@ impl Pattern {
         }
         Discovery::Nothing
     }
-
-    fn horizontal_reflection_line(&self, part: Part) -> Option<usize> {
-        let nrows = self.mirrors.nrows();
-        'outer: for i in 1..nrows {
-            let mut di = 1;
-            let mut rows_skipped = 0;
-
-            while di <= i && i + di - 1 < nrows {
-                let above = i - di;
-                let below = i + di - 1;
-
-                if self.mirrors.row(above) != self.mirrors.row(below) {
-                    match part {
-                        Part::One => continue 'outer,
-                        Part::Two if rows_skipped == 0 => {
-                            let diff = self.mirrors.row(above) - self.mirrors.row(below);
-                            let count_ones = diff.iter().filter(|&&x| x == 1 || x == -1).count();
-                            if count_ones == 1 {
-                                let col = diff.iter().position(|&x| x == 1 || x == -1).unwrap();
-                                println!(
-                                    "smudge must be at ({above},{col}) or ({below},{col}) with i={i}"
-                                );
-                                // And now skip this one row.
-                                rows_skipped = 1;
-                            } else {
-                                continue 'outer;
-                            }
-                        }
-                        Part::Two => continue 'outer,
-                    }
-                }
-
-                di += 1;
-            }
-
-            return Some(i);
-        }
-        None
-    }
-
-    fn vertical_reflection_line(&self, part: Part) -> Option<usize> {
-        let ncols = self.mirrors.ncols();
-        'outer: for i in 1..ncols {
-            let mut di = 1;
-            let mut cols_skipped = 0;
-
-            while di <= i && i + di - 1 < ncols {
-                let west = i - di;
-                let east = i + di - 1;
-
-                if self.mirrors.column(west) != self.mirrors.column(east) {
-                    continue 'outer;
-                }
-
-                if self.mirrors.column(west) != self.mirrors.column(east) {
-                    match part {
-                        Part::One => continue 'outer,
-                        Part::Two if cols_skipped == 0 => {
-                            let diff = self.mirrors.column(west) - self.mirrors.column(east);
-                            let count_ones = diff.iter().filter(|&&x| x == 1 || x == -1).count();
-                            if count_ones == 1 {
-                                let row = diff.iter().position(|&x| x == 1 || x == -1).unwrap();
-                                println!(
-                                    "smudge must be at ({row},{east}) or ({row},{east}) with i={i}"
-                                );
-                                // And now skip this one column.
-                                cols_skipped = 1;
-                            } else {
-                                continue 'outer;
-                            }
-                        }
-                        Part::Two => continue 'outer,
-                    }
-                }
-
-                di += 1;
-            }
-
-            return Some(i);
-        }
-        None
-    }
-
-    fn _find_smudge_horizontal(&self) -> Option<usize> {
-        // assert_eq!(self.horizontal_reflection_line(), None);
-        let nrows = self.mirrors.nrows();
-        'outer: for i in 1..nrows {
-            let mut di = 1;
-
-            while di <= i && i + di - 1 < nrows {
-                let above = i - di;
-                let below = i + di - 1;
-
-                if self.mirrors.row(above) != self.mirrors.row(below) {
-                    let diff = self.mirrors.row(above) - self.mirrors.row(below);
-                    let count_ones = diff.iter().filter(|&&x| x == 1 || x == -1).count();
-                    if count_ones == 1 {
-                        let col = diff.iter().position(|&x| x == 1 || x == -1).unwrap();
-                        println!("smudge must be at ({above},{col}) or ({below},{col}) with i={i}");
-                        return Some(i);
-                    }
-                    continue 'outer;
-                }
-
-                di += 1;
-            }
-        }
-        None
-    }
-
-    fn _find_smudge_vertical(&self) -> Option<usize> {
-        // assert_eq!(self.vertical_reflection_line(), None);
-        let ncols = self.mirrors.ncols();
-        'outer: for i in 1..ncols {
-            let mut di = 1;
-
-            while di <= i && i + di - 1 < ncols {
-                let west = i - di;
-                let east = i + di - 1;
-
-                if self.mirrors.column(west) != self.mirrors.column(east) {
-                    let diff = self.mirrors.column(west) - self.mirrors.column(east);
-                    let count_ones = diff.iter().filter(|&&x| x == 1 || x == -1).count();
-                    if count_ones == 1 {
-                        let row = diff.iter().position(|&x| x == 1 || x == -1).unwrap();
-                        println!("smudge must be at ({row},{west}) or ({row},{east}) with i={i}");
-                        return Some(i);
-                    }
-                    continue 'outer;
-                }
-
-                di += 1;
-            }
-        }
-        None
-    }
 }
 
 impl Solver for Puzzle {
@@ -303,7 +171,6 @@ impl Solver for Puzzle {
                     _ => panic!("unexpected character"),
                 }),
             );
-            //println!("{mirrors}");
             instance.patterns.push(Pattern { mirrors });
         }
         instance
@@ -311,79 +178,43 @@ impl Solver for Puzzle {
 
     fn solve(mut self) -> Self {
         for (p, pattern) in self.patterns.iter_mut().enumerate() {
-            // if let Some(cols) = pattern.vertical_reflection_line(Part::One) {
-            //     self.part1 += cols;
-            //     // self.part2 += 100
-            //     //     * pattern
-            //     //         .find_smudge_horizontal()
-            //     //         .expect("rows above new horizontal reflection line");
-            // }
-            // if let Some(rows) = pattern.horizontal_reflection_line(Part::One) {
-            //     self.part1 += 100 * rows;
-            //     // self.part2 += pattern
-            //     //     .find_smudge_vertical()
-            //     //     .expect("cols west of new vertical reflection line");
-            // }
+            let mut solution1 = vec![];
 
-            // if let Some(cols) = pattern.vertical_reflection_line(Part::Two) {
-            //     self.part2 += cols;
-            // }
-            // if let Some(rows) = pattern.horizontal_reflection_line(Part::Two) {
-            //     self.part2 += 100 * rows;
-            // }
-
-            println!(
-                "{p}: {:?}",
-                pattern.reflection_line(Orientation::Horizontal)
-            );
-            println!("{p}: {:?}", pattern.reflection_line(Orientation::Vertical));
-            println!("{p}: {:?}", pattern.find_smudge(Orientation::Horizontal));
-            println!("{p}: {:?}", pattern.find_smudge(Orientation::Vertical));
-            let mut solution1 = Discovery::<usize>::Nothing;
-
-            if let Discovery::HorizontalLine(rows) =
-                pattern.reflection_line(Orientation::Horizontal)
-            {
-                // println!("[{p}] Part 1: Horizontal line at row {rows}");
+            let candidate = pattern.reflection_line(Orientation::Horizontal);
+            if let [Discovery::HorizontalLine(rows)] = candidate[..] {
                 self.part1 += 100 * rows;
-                solution1 = Discovery::HorizontalLine(rows);
+                solution1 = candidate;
             }
-            if let Discovery::VerticalLine(cols) = pattern.reflection_line(Orientation::Vertical) {
-                // println!("[{p}] Part 1: Vertical line at column {cols}");
+            let candidate = pattern.reflection_line(Orientation::Vertical);
+            if let [Discovery::VerticalLine(cols)] = candidate[..] {
                 self.part1 += cols;
-                solution1 = Discovery::VerticalLine(cols);
+                solution1 = candidate;
             }
 
             if let Discovery::Smudge(i, j) = pattern.find_smudge(Orientation::Horizontal) {
-                // println!("[{p}] xor {i},{j}");
                 pattern.mirrors[(i, j)] ^= 1;
             } else if let Discovery::Smudge(i, j) = pattern.find_smudge(Orientation::Vertical) {
-                // println!("[{p}] xor {i},{j}");
                 pattern.mirrors[(i, j)] ^= 1;
             } else {
-                // println!("no smudge found for {p}");
+                panic!("no smudge found for {p}");
             }
 
-            println!(
-                "{p}: {:?}",
-                pattern.reflection_line(Orientation::Horizontal)
-            );
-            println!("{p}: {:?}", pattern.reflection_line(Orientation::Vertical));
-
-            if let Discovery::HorizontalLine(rows) =
-                pattern.reflection_line(Orientation::Horizontal)
-                && Discovery::HorizontalLine(rows) != solution1
-            {
-                // println!("[{p}] Part 2: Horizontal line at row {rows}");
+            let mut s2_h = pattern.reflection_line(Orientation::Horizontal);
+            s2_h.retain(|x| !solution1.contains(x));
+            if let [Discovery::HorizontalLine(rows)] = s2_h[..] {
                 self.part2 += 100 * rows;
-            } else if let Discovery::VerticalLine(cols) =
-                pattern.reflection_line(Orientation::Vertical)
-                && Discovery::VerticalLine(cols) != solution1
-            {
-                // println!("[{p}] Part 2: Vertical line at column {cols}");
+            }
+
+            let mut s2_v = pattern.reflection_line(Orientation::Vertical);
+            s2_v.retain(|x| !solution1.contains(x));
+            if let [Discovery::VerticalLine(cols)] = s2_v[..] {
                 self.part2 += cols;
-            } else {
-                println!("no reflection line for {p}");
+            }
+
+            if s2_h.len() != 1 && s2_v.len() != 1 {
+                println!(
+                    "Check {p}: solution 1 = {solution1:?} but s2_h = {s2_h:?} and s2_v = {s2_v:?}"
+                );
             }
         }
 
