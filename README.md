@@ -21,6 +21,7 @@ Well, now it's 2025 and I'm using Rust instead.
 9. `**` Sequences, [differencing](https://otexts.com/fpp2/stationarity.html), in-place modification, triangular numbers
 10. `**` Paths, areas, BFS, right-hand rule from physics
 11. `**` Manhattan distance
+12. `**` Parsers, dynamic programming
 
 # Lessons learned
 - `cargo check` is a very fast way to check if your code would compile.
@@ -32,6 +33,8 @@ represent the puzzle as a large object, rather than parsing the input in a `part
 - [`num`](https://crates.io/crates/num)
 - [Zelen](https://crates.io/crates/zelen), a MiniZinc frontend for [Selen](https://github.com/radevgit/selen), a CSP solver.
 
+Writing this down here for posterity. (I know this isn't Rust.) Check out [Ghostty](https://ghostty.org) as an alternative terminal emulator for Linux and Mac.
+
 # References
 
 - [A Comparison of Ada and Rust, using solutions to the Advent of Code](https://github.com/johnperry-math/AoC2023/blob/master/More_Detailed_Comparison.md)
@@ -41,6 +44,7 @@ represent the puzzle as a large object, rather than parsing the input in a `part
 - [Humanity is stained by the sins of C and no LLM can rewrite them away to Rust](https://kirancodes.me/posts/log-sins-of-c.html)
 - [Patterns for Defensive Programming in Rust](https://corrode.dev/blog/defensive-programming/)
 - [Cloudflare outage on November 18, 2025](https://blog.cloudflare.com/18-november-2025-outage/)
+- [Using unwrap() in Rust is Okay](https://burntsushi.net/unwrap/)
 - [Linus Torvalds Vents Over "Completely Crazy Rust Format Checking"](https://www.phoronix.com/news/Linus-Torvalds-Rust-Formatting)
 
 # Emacs-style keybindings for Zed

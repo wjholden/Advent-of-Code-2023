@@ -29,7 +29,7 @@ use std::collections::HashMap;
 /// The [memorize](https://docs.rs/memorize/latest/memorize/)
 /// crate might have been usable for this task, but probably
 /// not when using the object-oriented approach.
-fn main() {
+pub fn main() {
     let mut springs = Springs::new(include_str!("../../puzzles/day12.txt"));
     println!("Part 1: {}", springs.total_arrangements());
     springs.unfold();

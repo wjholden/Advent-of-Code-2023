@@ -1,7 +1,7 @@
-use regex::Regex; // 1.11.1
-use itertools::Itertools; // 0.14.0
-use std::{collections::HashMap, error::Error};
 use advent_of_code_2023::text_to_grid;
+use itertools::Itertools; // 0.14.0
+use regex::Regex; // 1.11.1
+use std::{collections::HashMap, error::Error};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let puzzle = include_str!("../../puzzles/day03.txt").trim();
@@ -21,15 +21,23 @@ fn solve(input: &str) -> Result<(u32, u32), Box<dyn Error>> {
             let r1 = if i > 0 { i - 1 } else { 0 };
             let r2 = if i < grid.nrows() - 1 { i + 1 } else { i };
             let c1 = if m.start() > 0 { m.start() - 1 } else { 0 };
-            let c2 = if m.end() == grid.ncols() { m.end() - 1 } else { m.end() };
- 
-            let adjacent = !(r1..=r2).cartesian_product(c1..=c2).all(|(r,c)|
-                grid[(r,c)] == '.' || grid[(r,c)].is_ascii_digit()
-            );
-            
+            let c2 = if m.end() == grid.ncols() {
+                m.end() - 1
+            } else {
+                m.end()
+            };
+
+            let adjacent = !(r1..=r2)
+                .cartesian_product(c1..=c2)
+                .all(|(r, c)| grid[(r, c)] == '.' || grid[(r, c)].is_ascii_digit());
+
             let value = m.as_str().parse::<u32>()?;
-            
-            let gears = (r1..=r2).cartesian_product(c1..=c2).into_iter().filter(|&x| grid[x] == '*').collect::<Vec<_>>();
+
+            let gears = (r1..=r2)
+                .cartesian_product(c1..=c2)
+                .into_iter()
+                .filter(|&x| grid[x] == '*')
+                .collect::<Vec<_>>();
             assert!(gears.len() <= 1);
             if gears.len() == 1 {
                 part2.entry(gears[0]).or_insert(vec![]).push(value);
@@ -40,7 +48,11 @@ fn solve(input: &str) -> Result<(u32, u32), Box<dyn Error>> {
             }
         }
     }
-    let gear_ratio = part2.into_values().filter(|v| v.len() == 2).map(|v| v[0] * v[1]).sum();
+    let gear_ratio = part2
+        .into_values()
+        .filter(|v| v.len() == 2)
+        .map(|v| v[0] * v[1])
+        .sum();
     Ok((part1, gear_ratio))
 }
 

@@ -1,10 +1,10 @@
 use std::error::Error;
 
-use nom::{IResult, Parser};
 use nom::bytes::complete::tag;
 use nom::character::complete::{alpha1, digit1, space1};
 use nom::multi::separated_list1;
 use nom::sequence::{delimited, separated_pair};
+use nom::{IResult, Parser};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let puzzle = include_str!("../../puzzles/day02.txt").trim();
@@ -78,8 +78,9 @@ fn parse_subset(input: &str) -> IResult<&str, Subset> {
     let mut blue = 0;
     let mut red = 0;
     let mut green = 0;
-    
-    let (input, draws) = separated_list1(tag(", "), separated_pair(digit1, space1, alpha1)).parse(input)?;
+
+    let (input, draws) =
+        separated_list1(tag(", "), separated_pair(digit1, space1, alpha1)).parse(input)?;
     for (count, color) in draws {
         match color {
             "blue" => blue = count.parse().unwrap(),
@@ -88,8 +89,8 @@ fn parse_subset(input: &str) -> IResult<&str, Subset> {
             _ => unreachable!(),
         }
     }
-    
-    Ok((input, Subset{ blue, red, green}))
+
+    Ok((input, Subset { blue, red, green }))
 }
 
 #[cfg(test)]
