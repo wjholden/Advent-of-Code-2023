@@ -18,3 +18,4 @@ puzzles/
 # Added by cargo
 
 /target
+flamegraph.svg

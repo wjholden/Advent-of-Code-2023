@@ -28,6 +28,7 @@ Well, now it's 2025 and I'm using Rust instead.
 - I've been reaching for the object-oriented approach more and more. It's becoming more convenient to
 represent the puzzle as a large object, rather than parsing the input in a `part1` function.
 - See day 10 for examples of implementing the `Add`, `Mul`, and `Display` traits.
+- [Flamegraph](https://github.com/flamegraph-rs/flamegraph) is fantastic!
 
 # Libraries
 - [`num`](https://crates.io/crates/num)
