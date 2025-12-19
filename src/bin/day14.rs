@@ -1,6 +1,10 @@
-use std::{collections::HashMap, usize};
+#[cfg(not(feature = "faster"))]
+use std::collections::HashMap;
+use std::usize;
 
 use advent_of_code_2023::*;
+#[cfg(feature = "faster")]
+use ndarray::Array2;
 
 pub const PUZZLE: &str = include_str!("../../puzzles/day14.txt");
 
@@ -10,23 +14,33 @@ pub const PUZZLE: &str = include_str!("../../puzzles/day14.txt");
 /// automata puzzles are OK, I guess. Definitely resorted to scatterplots in
 /// Excel for this one. I would have never guessed that the system descends to
 /// some minimum before cycling.
+///
+/// Switching from `std::collections::HashMap` to `ndarray::Array2` with the
+/// `faster` feature tag gives about a 10x speed boost (~3.6s and ~360ms).
+/// Flamegraph helped me to identify that the original version spends a lot of
+/// time just getting values in the HashMap. We don't need a sparse collection
+/// for this problem.
 fn main() {
     let d = Puzzle::new(PUZZLE);
     let d = d.solve();
     println!("Part 1: {}", d.part1);
     println!("Part 2: {}", d.part2);
-    //println!("{:?}", Puzzle::time(PUZZLE));
+    println!("{:?}", Puzzle::time(PUZZLE));
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Puzzle {
     pub part1: usize,
     pub part2: usize,
     lines: usize,
     columns: usize,
+    #[cfg(not(feature = "faster"))]
     rocks: HashMap<(usize, usize), Rock>,
+    #[cfg(feature = "faster")]
+    rocks: Array2<char>,
 }
 
+#[cfg(not(feature = "faster"))]
 #[derive(Debug, Clone)]
 enum Rock {
     Round,
@@ -42,6 +56,7 @@ enum Direction {
 }
 
 impl Puzzle {
+    #[cfg(not(feature = "faster"))]
     fn tilt(mut self, direction: Direction) -> (Self, usize) {
         let mut changes = 0;
         let next = |row, col| match direction {
@@ -66,6 +81,7 @@ impl Puzzle {
             for &col in col_iter.iter() {
                 let current_position = (row, col);
                 let next_position = next(row, col);
+
                 if let Some(Rock::Round) = self.rocks.get(&current_position)
                     && !self.rocks.contains_key(&next_position)
                 {
@@ -78,12 +94,59 @@ impl Puzzle {
         (self, changes)
     }
 
+    #[cfg(feature = "faster")]
+    fn tilt(mut self, direction: Direction) -> (Self, usize) {
+        let mut changes = 0;
+        let next = |row, col| match direction {
+            Direction::North => (row - 1, col),
+            Direction::South => (row + 1, col),
+            Direction::East => (row, col + 1),
+            Direction::West => (row, col - 1),
+        };
+        let row_iter: Vec<usize> = match direction {
+            Direction::North => (1..self.lines).collect(),
+            Direction::South => (0..self.lines - 1).rev().collect(),
+            Direction::East => (0..self.lines).rev().collect(),
+            Direction::West => (0..self.lines).collect(),
+        };
+        let col_iter: Vec<usize> = match direction {
+            Direction::North => (0..self.columns).collect(),
+            Direction::South => (0..self.columns).rev().collect(),
+            Direction::East => (0..self.columns - 1).rev().collect(),
+            Direction::West => (1..self.columns).rev().collect(),
+        };
+        for &row in row_iter.iter() {
+            for &col in col_iter.iter() {
+                let current_position = (row, col);
+                let next_position = next(row, col);
+                if self.rocks[current_position] == 'O' && self.rocks[next_position] == '.' {
+                    self.rocks[current_position] = '.';
+                    self.rocks[next_position] = 'O';
+                    changes += 1;
+                }
+            }
+        }
+        (self, changes)
+    }
+
+    #[cfg(not(feature = "faster"))]
     fn load(&self) -> usize {
         self.rocks
             .iter()
             .map(|((row, _), rock)| match rock {
                 Rock::Round => self.lines - row + 1,
                 Rock::Cube => 0,
+            })
+            .sum()
+    }
+
+    #[cfg(feature = "faster")]
+    fn load(&self) -> usize {
+        self.rocks
+            .indexed_iter()
+            .map(|((i, _), v)| match v {
+                'O' => self.lines - i,
+                _ => 0,
             })
             .sum()
     }
@@ -107,6 +170,7 @@ impl Puzzle {
     }
 }
 
+#[cfg(not(feature = "faster"))]
 impl std::fmt::Display for Puzzle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{} rows and {} columns", self.lines, self.columns)?;
@@ -128,29 +192,62 @@ impl std::fmt::Display for Puzzle {
     }
 }
 
+#[cfg(feature = "faster")]
+impl std::fmt::Display for Puzzle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{} rows and {} columns", self.lines, self.columns)?;
+        for row in 0..self.lines {
+            for col in 0..self.columns {
+                write!(f, "{}", self.rocks[(row, col)])?;
+            }
+            writeln!(f)?;
+        }
+        Ok(())
+    }
+}
+
 impl Solver for Puzzle {
     fn new(input: &str) -> Self {
         let mut instance = Self::default();
-        instance.rocks = input
-            .lines()
-            .enumerate()
-            .flat_map(|(i, line)| {
-                instance.lines = instance.lines.max(i);
-                line.char_indices().filter_map(move |(j, c)| match c {
-                    'O' => Some(((i, j), Rock::Round)),
-                    '#' => Some(((i, j), Rock::Cube)),
-                    '.' => None,
-                    _ => panic!("unexpected input character"),
+
+        #[cfg(feature = "faster")]
+        {
+            use ndarray::Array;
+
+            let rows = input.lines().count();
+            let a = Array::from_iter(input.chars().filter(|&c| c == 'O' || c == '#' || c == '.'));
+            let cols = a.len() / rows;
+            assert_eq!(rows * cols, a.len());
+            let a = a.into_shape_with_order((rows, cols)).unwrap();
+            instance.rocks = a;
+            instance.lines = rows;
+            instance.columns = cols;
+        }
+
+        #[cfg(not(feature = "faster"))]
+        {
+            instance.rocks = input
+                .lines()
+                .enumerate()
+                .flat_map(|(i, line)| {
+                    instance.lines = instance.lines.max(i);
+                    line.char_indices().filter_map(move |(j, c)| match c {
+                        'O' => Some(((i, j), Rock::Round)),
+                        '#' => Some(((i, j), Rock::Cube)),
+                        '.' => None,
+                        _ => panic!("unexpected input character"),
+                    })
                 })
-            })
-            .collect();
-        instance.columns = instance.rocks.keys().fold(0, |c, &(_, j)| c.max(j));
+                .collect();
+            instance.columns = instance.rocks.keys().fold(0, |c, &(_, j)| c.max(j));
+        }
         instance
     }
 
     fn solve(mut self) -> Self {
-        let mut backup = HashMap::new();
-        backup.clone_from(&self.rocks);
+        let clone = self.clone();
+
+        println!("{self}");
         let mut changes;
         loop {
             (self, changes) = self.tilt(Direction::North);
@@ -158,9 +255,11 @@ impl Solver for Puzzle {
                 break;
             }
         }
-        self.part1 = self.load();
+        let part1 = self.load();
+        println!("{self}");
+        self = clone;
+        self.part1 = part1;
 
-        self.rocks = backup;
         let mut cycles = 0;
         let mut min = usize::MAX;
 
