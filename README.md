@@ -22,6 +22,9 @@ Well, now it's 2025 and I'm using Rust instead.
 10. `**` Paths, areas, BFS, right-hand rule from physics
 11. `**` Manhattan distance
 12. `**` Parsers, dynamic programming
+13. `**` Grids, procedural programming, refactoring
+14. `**` More grids, procedural programming, and refactoring
+15. `* ` Hashing, hashmaps, insertion order
 
 # Lessons learned
 - `cargo check` is a very fast way to check if your code would compile.
