@@ -32,10 +32,10 @@ Well, now it's 2025 and I'm using Rust instead.
 represent the puzzle as a large object, rather than parsing the input in a `part1` function.
 - See day 10 for examples of implementing the `Add`, `Mul`, and `Display` traits.
 - [Flamegraph](https://github.com/flamegraph-rs/flamegraph) is fantastic!
+- Clippy (`cargo clippy`) has some wonderful lints to improve style.
 
 # Libraries
 - [`num`](https://crates.io/crates/num)
-- [Zelen](https://crates.io/crates/zelen), a MiniZinc frontend for [Selen](https://github.com/radevgit/selen), a CSP solver.
 
 Writing this down here for posterity. (I know this isn't Rust.) Check out [Ghostty](https://ghostty.org) as an alternative terminal emulator for Linux and Mac.
 

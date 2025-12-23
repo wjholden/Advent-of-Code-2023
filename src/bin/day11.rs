@@ -42,10 +42,10 @@ impl Image {
                 let dy = p2.y.abs_diff(p1.y);
                 let dx = p2.x.abs_diff(p1.x);
                 let y_empty = (p2.y.min(p1.y) + 1..p2.y.max(p1.y))
-                    .filter(|y| !occupied_rows.contains(&y))
+                    .filter(|y| !occupied_rows.contains(y))
                     .count();
                 let x_empty = (p2.x.min(p1.x) + 1..p2.x.max(p1.x))
-                    .filter(|x| !occupied_cols.contains(&x))
+                    .filter(|x| !occupied_cols.contains(x))
                     .count();
                 let distance = dy + dx + (expansion - 1) * y_empty + (expansion - 1) * x_empty;
                 total += distance;

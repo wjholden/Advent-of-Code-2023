@@ -72,7 +72,7 @@ impl Solver for Puzzle {
         self.part1 = self
             .steps
             .iter()
-            .map(|step| hash_string(&step) as usize)
+            .map(|step| hash_string(step) as usize)
             .sum::<usize>();
 
         let mut boxes: [Vec<(&str, usize)>; 256] = array::from_fn(|_| Vec::new());

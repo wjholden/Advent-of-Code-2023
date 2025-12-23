@@ -132,7 +132,7 @@ fn matches(
     if let Some(&value) = cache.get(&k) {
         (value, cache)
     } else {
-        let (value, mut cache) = match (symbols.get(0), state) {
+        let (value, mut cache) = match (symbols.first(), state) {
             (_, State::Must(0)) => unreachable!(),
             (None, State::Must(_)) => (0, cache), // end of symbols still needing a match
             (None, State::Not | State::May) if !group.is_empty() => (0, cache), // end of symbols with groups not matched
@@ -150,7 +150,7 @@ fn matches(
                 matches(&symbols[1..], group, State::May, cache)
             } // needed ., got ., now transition state to free
             (Some(Symbol::Unknown), State::May) => {
-                let (when_taken, cache) = if let Some(g) = group.get(0) {
+                let (when_taken, cache) = if let Some(g) = group.first() {
                     matches(
                         &symbols[1..],
                         &group[1..],
@@ -168,7 +168,7 @@ fn matches(
                 (when_taken + when_not_taken, cache)
             } // doubly-recursive case where the match ? in a maybe state
             (Some(Symbol::Damaged), State::May) => {
-                if let Some(g) = group.get(0) {
+                if let Some(g) = group.first() {
                     matches(
                         &symbols[1..],
                         &group[1..],

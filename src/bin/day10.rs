@@ -20,11 +20,11 @@ use num::Complex;
 /// Looks like there were some much better approaches to this puzzle
 /// (https://www.reddit.com/r/adventofcode/comments/18f1sgh/2023_day_10_part_2_advise_on_part_2/):
 /// - [Scanline](https://www.reddit.com/r/adventofcode/comments/18f1sgh/comment/kcripvi/)
-/// (I tried this but couldn't think through all the cases)
+///   (I tried this but couldn't think through all the cases)
 /// - [Pick's algorithm](https://www.reddit.com/r/adventofcode/comments/18f1sgh/comment/kcr8tyf/)
-/// to count the integer coordinates inside the pipe, and
+///   to count the integer coordinates inside the pipe, and
 /// - [Shoelace formula](https://www.reddit.com/r/adventofcode/comments/18f1sgh/comment/kcugm6t/)
-/// for the area.
+///   for the area.
 fn main() {
     let pipes = Pipes::new(include_str!("../../puzzles/day10.txt"));
     let (part1, part2) = pipes.solve();
@@ -42,10 +42,10 @@ pub struct Pipes {
 
 #[derive(Eq, PartialEq, Debug, Clone, Copy)]
 enum Direction {
-    LEFT,
-    RIGHT,
-    DOWN,
-    UP,
+    Left,
+    Right,
+    Down,
+    Up,
 }
 
 use Direction::*;
@@ -55,10 +55,10 @@ impl Add<Direction> for Complex<i64> {
 
     fn add(self, rhs: Direction) -> Self::Output {
         self + match rhs {
-            Direction::LEFT => Complex::new(-1, 0),
-            Direction::RIGHT => Complex::new(1, 0),
-            Direction::DOWN => Complex::new(0, -1),
-            Direction::UP => Complex::new(0, 1),
+            Direction::Left => Complex::new(-1, 0),
+            Direction::Right => Complex::new(1, 0),
+            Direction::Down => Complex::new(0, -1),
+            Direction::Up => Complex::new(0, 1),
         }
     }
 }
@@ -68,10 +68,10 @@ impl Mul<Direction> for Complex<i64> {
 
     fn mul(self, rhs: Direction) -> Self::Output {
         self * match rhs {
-            Direction::LEFT => Complex::new(-1, 0),
-            Direction::RIGHT => Complex::new(1, 0),
-            Direction::DOWN => Complex::new(0, -1),
-            Direction::UP => Complex::new(0, 1),
+            Direction::Left => Complex::new(-1, 0),
+            Direction::Right => Complex::new(1, 0),
+            Direction::Down => Complex::new(0, -1),
+            Direction::Up => Complex::new(0, 1),
         }
     }
 }
@@ -124,20 +124,20 @@ impl Pipes {
 
         let mut d = vec![];
 
-        if matches!(self.get(s + LEFT), '-' | 'L' | 'F') {
-            d.push(LEFT);
+        if matches!(self.get(s + Left), '-' | 'L' | 'F') {
+            d.push(Left);
         }
 
-        if matches!(self.get(s + RIGHT), '-' | 'J' | '7') {
-            d.push(RIGHT);
+        if matches!(self.get(s + Right), '-' | 'J' | '7') {
+            d.push(Right);
         }
 
-        if matches!(self.get(s + DOWN), '|' | 'L' | 'J') {
-            d.push(DOWN);
+        if matches!(self.get(s + Down), '|' | 'L' | 'J') {
+            d.push(Down);
         }
 
-        if matches!(self.get(s + UP), '|' | '7' | 'F') {
-            d.push(UP);
+        if matches!(self.get(s + Up), '|' | '7' | 'F') {
+            d.push(Up);
         }
 
         d.try_into().expect("two initial directions")
@@ -145,12 +145,12 @@ impl Pipes {
 
     fn s(&self) -> char {
         match self.initial_directions() {
-            [LEFT, RIGHT] | [RIGHT, LEFT] => '-',
-            [LEFT, DOWN] | [DOWN, LEFT] => '7',
-            [LEFT, UP] | [UP, LEFT] => 'J',
-            [RIGHT, DOWN] | [DOWN, RIGHT] => 'F',
-            [RIGHT, UP] | [UP, RIGHT] => 'L',
-            [DOWN, UP] | [UP, DOWN] => '|',
+            [Left, Right] | [Right, Left] => '-',
+            [Left, Down] | [Down, Left] => '7',
+            [Left, Up] | [Up, Left] => 'J',
+            [Right, Down] | [Down, Right] => 'F',
+            [Right, Up] | [Up, Right] => 'L',
+            [Down, Up] | [Up, Down] => '|',
             [x, y] if x == y => unreachable!(),
             _ => panic!(),
         }
@@ -171,10 +171,10 @@ impl Pipes {
             }
             d = match (d, self.get(p)) {
                 (_, '-' | '|') => d,
-                (DOWN, 'L') | (UP, 'F') => RIGHT,
-                (LEFT, 'F') | (RIGHT, '7') => DOWN,
-                (UP, '7') | (DOWN, 'J') => LEFT,
-                (RIGHT, 'J') | (LEFT, 'L') => UP,
+                (Down, 'L') | (Up, 'F') => Right,
+                (Left, 'F') | (Right, '7') => Down,
+                (Up, '7') | (Down, 'J') => Left,
+                (Right, 'J') | (Left, 'L') => Up,
                 _ => panic!("unexpected direction/pipe combination"),
             };
         }
@@ -193,12 +193,12 @@ impl Pipes {
             let backwards = position + Complex::<i64>::I * (Complex::I * *direction);
             match (self.get(*position), direction) {
                 ('|' | '-', _) => {}
-                ('J', UP) | ('F', DOWN) | ('L', RIGHT) | ('7', LEFT) => {
+                ('J', Up) | ('F', Down) | ('L', Right) | ('7', Left) => {
                     if !path.contains_key(&backwards) {
                         sides.insert(backwards, Side::Right);
                     }
                 }
-                ('J', LEFT) | ('L', UP) | ('7', DOWN) | ('F', RIGHT) => {
+                ('J', Left) | ('L', Up) | ('7', Down) | ('F', Right) => {
                     if !path.contains_key(&backwards) {
                         sides.insert(backwards, Side::Left);
                     }
@@ -224,7 +224,7 @@ impl Pipes {
     fn select(&self, sides: &mut HashMap<Complex<i64>, Side>) {
         let l = sides.values().filter(|s| **s == Side::Left).count();
         let r = sides.values().filter(|s| **s == Side::Right).count();
-        for (_, side) in sides {
+        for side in sides.values_mut() {
             *side = match (l < r, &side) {
                 (true, Side::Left) => Side::Inside,
                 (true, Side::Right) => Side::Outside,
@@ -256,7 +256,7 @@ impl Pipes {
             {
                 let mut d = Complex::ONE;
                 for _ in 1..=4 {
-                    d = d * Complex::I;
+                    d *= Complex::I;
                     let p = position + d;
                     if 0 <= p.re
                         && p.re < self.cols
@@ -298,10 +298,10 @@ impl fmt::Display for Pipes {
                     f,
                     "{}",
                     match path.get(&position) {
-                        Some(LEFT) => "<",
-                        Some(RIGHT) => ">",
-                        Some(UP) => "^",
-                        Some(DOWN) => "v",
+                        Some(Left) => "<",
+                        Some(Right) => ">",
+                        Some(Up) => "^",
+                        Some(Down) => "v",
                         None => "",
                     }
                 )?;
@@ -320,7 +320,7 @@ impl fmt::Display for Pipes {
                     write!(f, " ")?;
                 }
             }
-            write!(f, "\n")?;
+            writeln!(f)?;
         }
         Ok(())
     }

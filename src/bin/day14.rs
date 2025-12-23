@@ -1,6 +1,5 @@
 #[cfg(not(feature = "faster"))]
 use std::collections::HashMap;
-use std::usize;
 
 use advent_of_code_2023::*;
 #[cfg(feature = "faster")]
