@@ -3,6 +3,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use advent_of_code_2023::*;
 use itertools::Itertools;
 use num::Complex;
+use rayon::iter::{IntoParallelIterator, ParallelBridge, ParallelIterator};
 
 pub const PUZZLE: &str = include_str!("../../puzzles/day16.txt");
 
@@ -53,39 +54,45 @@ struct State {
 
 impl Puzzle {
     fn more_energy_more_passion(&self) -> usize {
-        let mut max_energy = 0;
         let south = Complex::new(0, -1);
         let north = Complex::new(0, 1);
         let west = Complex::new(-1, 0);
         let east = Complex::new(1, 0);
-        for (x, y) in (self.min_x..=self.max_x).cartesian_product(self.min_y..=self.max_y) {
-            let position = Complex::new(x, y);
-            if x == self.min_x {
-                max_energy = max_energy.max(self.energize(State {
-                    position,
-                    direction: east,
-                }));
-            }
-            if x == self.max_x {
-                max_energy = max_energy.max(self.energize(State {
-                    position,
-                    direction: west,
-                }));
-            }
-            if y == self.min_y {
-                max_energy = max_energy.max(self.energize(State {
-                    position,
-                    direction: north,
-                }));
-            }
-            if y == self.max_y {
-                max_energy = max_energy.max(self.energize(State {
-                    position,
-                    direction: south,
-                }));
-            }
-        }
-        max_energy
+        (self.min_x..=self.max_x)
+            .cartesian_product(self.min_y..=self.max_y)
+            .par_bridge()
+            .into_par_iter()
+            .map(|(x, y)| {
+                let mut max_energy = 0;
+                let position = Complex::new(x, y);
+                if x == self.min_x {
+                    max_energy = max_energy.max(self.energize(State {
+                        position,
+                        direction: east,
+                    }));
+                }
+                if x == self.max_x {
+                    max_energy = max_energy.max(self.energize(State {
+                        position,
+                        direction: west,
+                    }));
+                }
+                if y == self.min_y {
+                    max_energy = max_energy.max(self.energize(State {
+                        position,
+                        direction: north,
+                    }));
+                }
+                if y == self.max_y {
+                    max_energy = max_energy.max(self.energize(State {
+                        position,
+                        direction: south,
+                    }));
+                }
+                max_energy
+            })
+            .max()
+            .unwrap()
     }
 
     fn energize(&self, start: State) -> usize {
@@ -93,6 +100,11 @@ impl Puzzle {
         let mut frontier = VecDeque::new();
 
         frontier.push_front(start);
+
+        // An earlier version of this program was allocating a new vec![] for
+        // each state. We can substantially improve this by reusing the same
+        // vector each time.
+        let mut directions: Vec<Complex<isize>> = Vec::new();
 
         while let Some(state) = frontier.pop_front() {
             if state.position.re < self.min_x
@@ -103,17 +115,25 @@ impl Puzzle {
                 continue;
             }
             history.insert(state);
-            let directions = match self.items.get(&state.position) {
-                None => vec![state.direction],
-                Some(Item::VSplit) if state.direction.re == 0 => vec![state.direction],
-                Some(Item::HSplit) if state.direction.im == 0 => vec![state.direction],
+            // There could be an opportunity for a small optimization here. We
+            // could step over empty spaces without pushing them to the frontier.
+            // We would need to remember to put them in the history, and we
+            // would have to reconsider mutability.
+            //
+            // Tried it quickly, got stuck in an endless loop, and decided it
+            // wasn't worth the effort.
+            match self.items.get(&state.position) {
+                None => directions.push(state.direction),
+                Some(Item::VSplit) if state.direction.re == 0 => directions.push(state.direction),
+                Some(Item::HSplit) if state.direction.im == 0 => directions.push(state.direction),
                 Some(Item::VSplit | Item::HSplit) => {
-                    vec![state.direction * Complex::I, state.direction * -Complex::I]
+                    directions.push(state.direction * Complex::I);
+                    directions.push(state.direction * -Complex::I);
                 }
-                Some(Item::MirrorL) => vec![Complex::<isize>::I / state.direction],
-                Some(Item::MirrorR) => vec![-Complex::<isize>::I / state.direction],
+                Some(Item::MirrorL) => directions.push(Complex::<isize>::I / state.direction),
+                Some(Item::MirrorR) => directions.push(-Complex::<isize>::I / state.direction),
             };
-            for direction in directions {
+            while let Some(direction) = directions.pop() {
                 let new_state = State {
                     position: state.position + direction,
                     direction,

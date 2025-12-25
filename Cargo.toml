@@ -11,10 +11,11 @@ faster = []
 [dependencies]
 itertools = "0.14.0"
 nalgebra = "0.34.1"
-ndarray = "0.16.1"
+ndarray = "0.17.1"
 nom = { version = "8.0.0", features = ["alloc"] }
 num = "0.4.3"
 num-complex = "0.4.6"
+rayon = "1.11.0"
 regex = "1.11.1"
 
 [lints.rust]
