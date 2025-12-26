@@ -39,17 +39,17 @@ impl Item {
 pub struct Puzzle {
     pub part1: usize,
     pub part2: usize,
-    items: HashMap<Complex<isize>, Item>,
-    min_x: isize,
-    max_x: isize,
-    min_y: isize,
-    max_y: isize,
+    items: HashMap<Complex<i8>, Item>,
+    min_x: i8,
+    max_x: i8,
+    min_y: i8,
+    max_y: i8,
 }
 
 #[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
 struct State {
-    position: Complex<isize>,
-    direction: Complex<isize>,
+    position: Complex<i8>,
+    direction: Complex<i8>,
 }
 
 impl Puzzle {
@@ -104,7 +104,7 @@ impl Puzzle {
         // An earlier version of this program was allocating a new vec![] for
         // each state. We can substantially improve this by reusing the same
         // vector each time.
-        let mut directions: Vec<Complex<isize>> = Vec::new();
+        let mut directions: Vec<Complex<i8>> = Vec::new();
 
         while let Some(state) = frontier.pop_front() {
             if state.position.re < self.min_x
@@ -130,8 +130,8 @@ impl Puzzle {
                     directions.push(state.direction * Complex::I);
                     directions.push(state.direction * -Complex::I);
                 }
-                Some(Item::MirrorL) => directions.push(Complex::<isize>::I / state.direction),
-                Some(Item::MirrorR) => directions.push(-Complex::<isize>::I / state.direction),
+                Some(Item::MirrorL) => directions.push(Complex::<i8>::I / state.direction),
+                Some(Item::MirrorR) => directions.push(-Complex::<i8>::I / state.direction),
             };
             while let Some(direction) = directions.pop() {
                 let new_state = State {
@@ -147,7 +147,7 @@ impl Puzzle {
         history
             .iter()
             .map(|&state| state.position)
-            .collect::<HashSet<Complex<isize>>>()
+            .collect::<HashSet<Complex<i8>>>()
             .len()
     }
 }
@@ -156,10 +156,10 @@ impl Solver for Puzzle {
     fn new(input: &str) -> Self {
         let mut instance = Self::default();
         for (row, line) in input.lines().enumerate() {
-            let y = row as isize;
+            let y = row as i8;
             instance.max_y = instance.max_y.max(y);
             for (col, c) in line.char_indices() {
-                let x = col as isize;
+                let x = col as i8;
                 if c != '.' {
                     instance.items.insert(Complex::new(x, y), Item::from(c));
                     instance.max_x = instance.max_x.max(x);

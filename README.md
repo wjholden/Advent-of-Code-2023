@@ -35,6 +35,9 @@ represent the puzzle as a large object, rather than parsing the input in a `part
 - [Flamegraph](https://github.com/flamegraph-rs/flamegraph) is fantastic!
 - Clippy (`cargo clippy`) has some wonderful lints to improve style.
 - [`array::from_fn`](https://github.com/rust-lang/rust/pull/75644#issue-680454438) is an OK way to fill an array of elements that do not support `Copy`.
+- You can [model refractions](https://www.reddit.com/r/adventofcode/comments/1pupbng/2023_day_16_part_1_model_for_and_mirrors/) (`/` and `\`) of vectors `1`, `-1`, `im`, and `-im` as `f(z)=-im/z` and `g(z)=im/z`...or simply as `f(vector[x,y])=vector[-y,-x]` and `g(vector[x,y])=vector[y,x]`.
+  It might be unnecessary to reach for complex arithmetic in a lot of these Advent of Code puzzles where your vectors always fit in a limited domain.
+- There might be substantial performance benefits to using a smaller type where possible (such as i32, i16, or i8 instead of i64, which is isize on a 64-bit compilation target).
 
 # Libraries
 - [`num`](https://crates.io/crates/num)
@@ -52,6 +55,7 @@ Writing this down here for posterity. (I know this isn't Rust.) Check out [Ghost
 - [Cloudflare outage on November 18, 2025](https://blog.cloudflare.com/18-november-2025-outage/)
 - [Using unwrap() in Rust is Okay](https://burntsushi.net/unwrap/)
 - [Linus Torvalds Vents Over "Completely Crazy Rust Format Checking"](https://www.phoronix.com/news/Linus-Torvalds-Rust-Formatting)
+- [Galen Hunt: "My goal is to eliminate every line of C and C++ from Microsoft by 2030."](https://www.linkedin.com/posts/galenh_principal-software-engineer-coreai-microsoft-activity-7407863239289729024-WTzf/)
 
 # Emacs-style keybindings for Zed
 
