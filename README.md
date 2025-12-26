@@ -26,6 +26,7 @@ Well, now it's 2025 and I'm using Rust instead.
 14. `**` More grids, procedural programming, and refactoring
 15. `**` Hashing, hashmaps, insertion order
 16. `**` Ray tracing, graph cycles, imaginary numbers
+17. `**` Pathfinding, successor function
 
 # Lessons learned
 - `cargo check` is a very fast way to check if your code would compile.
