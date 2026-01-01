@@ -27,6 +27,14 @@ Well, now it's 2025 and I'm using Rust instead.
 15. `**` Hashing, hashmaps, insertion order
 16. `**` Ray tracing, graph cycles, imaginary numbers
 17. `**` Pathfinding, successor function
+18. `**` Shoelace formula, geometry
+19. `**` Parsers, branching, DFS, DAGs, software design (which object does the search?)
+20. `  `
+21. `  `
+22. `  `
+23. `  `
+24. `  `
+25. `  `
 
 # Lessons learned
 - `cargo check` is a very fast way to check if your code would compile.
@@ -39,6 +47,7 @@ represent the puzzle as a large object, rather than parsing the input in a `part
 - You can [model refractions](https://www.reddit.com/r/adventofcode/comments/1pupbng/2023_day_16_part_1_model_for_and_mirrors/) (`/` and `\`) of vectors `1`, `-1`, `im`, and `-im` as `f(z)=-im/z` and `g(z)=im/z`...or simply as `f(vector[x,y])=vector[-y,-x]` and `g(vector[x,y])=vector[y,x]`.
   It might be unnecessary to reach for complex arithmetic in a lot of these Advent of Code puzzles where your vectors always fit in a limited domain.
 - There might be substantial performance benefits to using a smaller type where possible (such as i32, i16, or i8 instead of i64, which is isize on a 64-bit compilation target).
+- You can index a HashMap entry with square brackets.
 
 # Libraries
 - [`num`](https://crates.io/crates/num)
