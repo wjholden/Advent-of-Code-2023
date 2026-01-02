@@ -28,7 +28,7 @@ Well, now it's 2025 and I'm using Rust instead.
 16. `**` Ray tracing, graph cycles, imaginary numbers
 17. `**` Pathfinding, successor function
 18. `**` Shoelace formula, geometry
-19. `**` Parsers, branching, DFS, DAGs, software design (which object does the search?)
+19. `**` Decision trees, parsers, branching, DFS, DAGs, software design (which object does the search?)
 20. `  `
 21. `  `
 22. `  `
@@ -48,6 +48,7 @@ represent the puzzle as a large object, rather than parsing the input in a `part
   It might be unnecessary to reach for complex arithmetic in a lot of these Advent of Code puzzles where your vectors always fit in a limited domain.
 - There might be substantial performance benefits to using a smaller type where possible (such as i32, i16, or i8 instead of i64, which is isize on a 64-bit compilation target).
 - You can index a HashMap entry with square brackets.
+- I would think you should always be able to model a decision tree as a DAG.
 
 # Libraries
 - [`num`](https://crates.io/crates/num)
@@ -66,6 +67,11 @@ Writing this down here for posterity. (I know this isn't Rust.) Check out [Ghost
 - [Using unwrap() in Rust is Okay](https://burntsushi.net/unwrap/)
 - [Linus Torvalds Vents Over "Completely Crazy Rust Format Checking"](https://www.phoronix.com/news/Linus-Torvalds-Rust-Formatting)
 - [Galen Hunt: "My goal is to eliminate every line of C and C++ from Microsoft by 2030."](https://www.linkedin.com/posts/galenh_principal-software-engineer-coreai-microsoft-activity-7407863239289729024-WTzf/)
+- [Building an LLM from scratch in Rust](https://www.tag1.com/how-to/part1-tokenization-building-an-llm-from-scratch-in-rust/)
+- [HOPL-II](https://dl.acm.org/doi/proceedings/10.1145/154766)
+- [HOPL-III](https://dl.acm.org/doi/proceedings/10.1145/1238844)
+- [HOPL-IV](https://dl.acm.org/do/10.1145/event-12215/abs/)
+- [Pokemon team optimization](https://nchagnet.pages.dev/blog/pokemon-team-optimization/)
 
 # Emacs-style keybindings for Zed
 
