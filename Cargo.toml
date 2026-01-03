@@ -16,6 +16,7 @@ nom = { version = "8.0.0", features = ["alloc"] }
 num = "0.4.3"
 num-complex = "0.4.6"
 pathfinding = "4.14.0"
+petgraph = "0.8.3"
 rayon = "1.11.0"
 regex = "1.11.1"
 
