@@ -5,22 +5,23 @@ pub const PUZZLE: &str = include_str!("../../puzzles/dayXX.txt");
 fn main() {
     let d = Puzzle::new(PUZZLE);
     let d = d.solve();
-    println!("Part 1: {}", d.part1);
-    //println!("Part 2: {}", d.part2);
+    println!("Part 1: {}", d.part1.unwrap());
+    //println!("Part 2: {}", d.part2.unwrap());
     //println!("{:?}", Puzzle::time(PUZZLE));
 }
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct Puzzle {
-    pub part1: usize,
-    pub part2: usize,
+    pub part1: Option<usize>,
+    pub part2: Option<usize>,
 }
 
 impl Solver for Puzzle {
     fn new(input: &str) -> Self {
-        let mut instance = Self::default();
-
-        instance
+        Self {
+            part1: None,
+            part2: None,
+        }
     }
 
     fn solve(mut self) -> Self {

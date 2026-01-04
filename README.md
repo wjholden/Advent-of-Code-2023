@@ -29,8 +29,8 @@ Well, now it's 2025 and I'm using Rust instead.
 17. `**` Pathfinding, successor function
 18. `**` Shoelace formula, geometry
 19. `**` Decision trees, parsers, branching, DFS, DAGs, software design (which object does the search?)
-20. `  `
-21. `  `
+20. `**` Circuits, in-degree of a directed graph edge, periods
+21. `**` Geometry, BFS, parity, modular arithmetic
 22. `  `
 23. `  `
 24. `  `
