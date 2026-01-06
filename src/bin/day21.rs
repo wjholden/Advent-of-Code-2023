@@ -156,6 +156,7 @@ impl Solver for Puzzle {
         let rows = input.lines().count();
         let cols = input.lines().next().unwrap().chars().count();
         // See https://docs.rs/ndarray/latest/ndarray/struct.ArrayBase.html.
+        // I would prefer this to populate the array from an iterator.
         let array = Array2::from_shape_vec((rows, cols), data.collect()).unwrap();
         Self {
             part1: None,

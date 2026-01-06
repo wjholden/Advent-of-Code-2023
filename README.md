@@ -30,13 +30,14 @@ Well, now it's 2025 and I'm using Rust instead.
 18. `**` Shoelace formula, geometry
 19. `**` Decision trees, parsers, branching, DFS, DAGs, software design (which object does the search?)
 20. `**` Circuits, in-degree of a directed graph edge, periods
-21. `**` Geometry, BFS, parity, modular arithmetic
+21. `**` Geometry, BFS, parity, modular arithmetic, special-cases-in-the-input
 22. `  `
 23. `  `
 24. `  `
 25. `  `
 
 # Lessons learned
+- **Always look for unstated assumptions in the input.**
 - `cargo check` is a very fast way to check if your code would compile.
 - I've been reaching for the object-oriented approach more and more. It's becoming more convenient to
 represent the puzzle as a large object, rather than parsing the input in a `part1` function.
@@ -72,6 +73,7 @@ Writing this down here for posterity. (I know this isn't Rust.) Check out [Ghost
 - [HOPL-III](https://dl.acm.org/doi/proceedings/10.1145/1238844)
 - [HOPL-IV](https://dl.acm.org/do/10.1145/event-12215/abs/)
 - [Pokemon team optimization](https://nchagnet.pages.dev/blog/pokemon-team-optimization/)
+- [A Geometric solution to advent of code 2023, day 21](https://github.com/villuna/aoc23/wiki/A-Geometric-solution-to-advent-of-code-2023,-day-21)
 
 # Emacs-style keybindings for Zed
 
