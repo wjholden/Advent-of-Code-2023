@@ -123,48 +123,11 @@ impl Puzzle {
         }
     }
 
-    /// This technique iterates over all of the (sorted) bricks. It identifies
-    /// the tallest z of any brick that would intersect the current brick in
-    /// the x-y plane and shifts the brick down to that z+1.
-    ///
-    /// This algorithm passes the test case, but fails on the real input. I
-    /// suspect that there could be overlapping bricks in here due to the
-    /// partial order. You can have a brick at z1..z2 and another brick at
-    /// z3..z4 where z1<z3<z4<z2.
-    fn fall_sorted(&mut self) {
-        for i in 1..self.bricks.len() {
-            let (left, right) = self.bricks.split_at_mut(i);
-            let brick = &mut right[0];
-            // We have a brick above z=1. Find the highest thing directly beneath it.
-            if let Some(tallest_z_under) = left
-                .iter()
-                .filter_map(|other| {
-                    if brick.intersects_in_xy_plane(other) {
-                        Some(other.end.z)
-                    } else {
-                        None
-                    }
-                })
-                .max()
-                && brick.start.z > tallest_z_under + 1
-            {
-                // println!("The highest brick under {brick:?} is at z={tallest_z_under}.");
-                let shift = brick.start.z - tallest_z_under - 1;
-                // println!("I can shift by {shift}.");
-                brick.start.z -= shift;
-                brick.end.z -= shift;
-            }
-        }
-    }
-
     fn disintegratable_bricks(&self) -> Vec<&Brick> {
         let mut solution = vec![];
         let max_z = self.max_z_start();
-        for z in 1..max_z {
+        for z in (1..max_z).rev() {
             println!("====== z = {z} ======");
-            // 1) Lower <- find all bricks at max z
-            // 2) Upper <- find all bricks at min z
-            // 3) For each brick in lower, find the x/y
             let lower: Vec<&Brick> = self
                 .bricks
                 .iter()
@@ -181,18 +144,10 @@ impl Puzzle {
             let support_matrix = DMatrix::from_fn(upper.len(), lower.len(), |i, j| {
                 upper[i].intersects_in_xy_plane(lower[j]) as u8
             });
-            // let support_matrix = Array::from_shape_fn((lower.len(), upper.len()), |(i, j)| {
-            //     lower[i].intersects_in_xy_plane(upper[j]) as u8
-            // });
-            // println!("Lower ({}): {lower:?}", lower.len());
-            // println!("Upper ({}): {upper:?}", upper.len());
             println!("Support: {support_matrix}");
             for i in 0..lower.len() {
-                // let selection = Array::from_shape_fn(upper.len(), |j| if j == i { 0 } else { 1 });
                 let selection = DVector::from_fn(lower.len(), |j, _| if j == i { 0 } else { 1 });
-                // println!("Selection vector: {selection}");
                 let product = &support_matrix * &selection;
-                // println!("Support if disintegrated: {product}");
                 if !product.iter().contains(&0) {
                     println!("{:?} can be disintegrated.", lower[i]);
                     solution.push(lower[i]);
@@ -205,6 +160,7 @@ impl Puzzle {
         for top in self.bricks.iter().filter(|brick| brick.start.z >= max_z) {
             solution.push(top);
         }
+
         solution
     }
 
@@ -239,9 +195,8 @@ impl Solver for Puzzle {
     }
 
     fn solve(mut self) -> Self {
-        // self.fall_sorted();
-        // self.part1 = Some(self.disintegratable_bricks().len());
         self.fall_top_down();
+        self.part1 = Some(self.disintegratable_bricks().len());
         self
     }
 }
@@ -255,5 +210,10 @@ mod sand_slabs {
     #[test]
     fn test1() {
         assert_eq!(Puzzle::new(SAMPLE).solve().part1, Some(5));
+    }
+
+    #[test]
+    fn test2() {
+        assert_eq!(Puzzle::new(SAMPLE).solve().part2, Some(7));
     }
 }
