@@ -3,32 +3,40 @@ use std::collections::BTreeMap;
 use advent_of_code_2023::*;
 use itertools::Itertools;
 use nalgebra::{DMatrix, DVector};
+use rayon::iter::{ParallelBridge, ParallelIterator};
 
 pub const PUZZLE: &str = include_str!("../../puzzles/day22.txt");
 
+/// Surprisingly tractable! This puzzle took me a few days. I had thought that
+/// it would be too computationally expensive to do the obvious thing. I had
+/// envisioned a tricky dependency graph of stacked bricks, but it turns out
+/// you can just clone the whole thing, delete a brick, and see how many this
+/// moves.
+///
+/// They say that if it's stupid but it works, then it isn't stupid...
 fn main() {
     let d = Puzzle::new(PUZZLE);
     let d = d.solve();
-    println!("Part 1: {}", d.part1.unwrap()); // 480 too low.
-    //println!("Part 2: {}", d.part2.unwrap());
-    //println!("{:?}", Puzzle::time(PUZZLE));
+    println!("Part 1: {}", d.part1.unwrap());
+    println!("Part 2: {}", d.part2.unwrap());
+    println!("{:?}", Puzzle::time(PUZZLE));
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Puzzle {
     pub part1: Option<usize>,
     pub part2: Option<usize>,
     bricks: Vec<Brick>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Point {
     x: usize,
     y: usize,
     z: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Brick {
     start: Point,
     end: Point,
@@ -97,11 +105,12 @@ impl Brick {
 }
 
 impl Puzzle {
-    fn fall_top_down(&mut self) {
+    fn fall_top_down(&mut self) -> usize {
+        let mut moves = 0;
         let max_x = self.bricks.iter().map(|b| b.end.x).max().unwrap();
         let max_y = self.bricks.iter().map(|b| b.end.y).max().unwrap();
         let mut height_matrix: DMatrix<usize> = DMatrix::zeros(max_x + 1, max_y + 1);
-        println!("Initial heights: {height_matrix}");
+        // println!("Initial heights: {height_matrix}");
         for brick in self.bricks.iter_mut() {
             let Brick {
                 start: Point { x: x1, y: y1, z: _ },
@@ -114,20 +123,30 @@ impl Puzzle {
                 .expect("maximum height under current brick");
             let distance = brick.start.z - zh;
             let shift = distance - 1;
-            brick.start.z = brick.start.z - shift;
-            brick.end.z = brick.end.z - shift;
+            if shift > 0 {
+                brick.start.z = brick.start.z - shift;
+                brick.end.z = brick.end.z - shift;
+                moves += 1;
+            }
             for (x, y) in (x1..=x2).cartesian_product(y1..=y2) {
                 height_matrix[(x, y)] = brick.end.z;
             }
-            println!("New heights: {height_matrix}");
+            // println!("New heights: {height_matrix}");
         }
+        moves
     }
 
     fn disintegratable_bricks(&self) -> Vec<&Brick> {
         let mut solution = vec![];
         let max_z = self.max_z_start();
+
+        // All bricks at the top are solutions for part 1.
+        // None of these bricks support others.
+        for top in self.bricks.iter().filter(|brick| brick.start.z >= max_z) {
+            solution.push(top);
+        }
+
         for z in (1..max_z).rev() {
-            println!("====== z = {z} ======");
             let lower: Vec<&Brick> = self
                 .bricks
                 .iter()
@@ -141,24 +160,27 @@ impl Puzzle {
             assert!(!lower.is_empty());
             assert!(!upper.is_empty());
 
+            // A little backwards from what you might expect: rows are the
+            // upper bricks, columns are the lower bricks. We will multiply by
+            // a vector of all-but-one ones. The single zero in our vector
+            // is the lower brick we are removing.
             let support_matrix = DMatrix::from_fn(upper.len(), lower.len(), |i, j| {
                 upper[i].intersects_in_xy_plane(lower[j]) as u8
             });
-            println!("Support: {support_matrix}");
-            for i in 0..lower.len() {
+
+            for (i, _brick) in lower.iter().enumerate() {
                 let selection = DVector::from_fn(lower.len(), |j, _| if j == i { 0 } else { 1 });
                 let product = &support_matrix * &selection;
+                // If the matrix product produces a zero, this means the
+                // corresponding upper brick is now supported by zero lower
+                // bricks. There might have been a more direct way to do
+                // this, but the linear combination works.
                 if !product.iter().contains(&0) {
-                    println!("{:?} can be disintegrated.", lower[i]);
+                    // Here, the product does *not* contain a zero, so we know
+                    // it is safe to disintegrate this lower brick.
                     solution.push(lower[i]);
-                } else {
-                    println!("{:?} CANNOT be disintegrated.", lower[i]);
                 }
             }
-        }
-        // All bricks at the top are solutions as well.
-        for top in self.bricks.iter().filter(|brick| brick.start.z >= max_z) {
-            solution.push(top);
         }
 
         solution
@@ -196,7 +218,21 @@ impl Solver for Puzzle {
 
     fn solve(mut self) -> Self {
         self.fall_top_down();
-        self.part1 = Some(self.disintegratable_bricks().len());
+        // let (part1, part2) = self.disintegratable_bricks();
+        // self.part1 = Some(part1.len());
+        // self.part2 = Some(part2);
+        let can_delete = self.disintegratable_bricks();
+        self.part1 = Some(can_delete.len());
+        self.part2 = Some(
+            (0..self.bricks.len())
+                .par_bridge()
+                .map(|i| {
+                    let mut tmp = self.clone();
+                    tmp.bricks.remove(i);
+                    tmp.fall_top_down()
+                })
+                .sum(),
+        );
         self
     }
 }

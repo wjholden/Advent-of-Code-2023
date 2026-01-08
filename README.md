@@ -31,7 +31,7 @@ Well, now it's 2025 and I'm using Rust instead.
 19. `**` Decision trees, parsers, branching, DFS, DAGs, software design (which object does the search?)
 20. `**` Circuits, in-degree of a directed graph edge, periods
 21. `**` Geometry, BFS, parity, modular arithmetic, special-cases-in-the-input
-22. `  `
+22. `**` Collision detection, surprisingly tractable
 23. `  `
 24. `  `
 25. `  `
