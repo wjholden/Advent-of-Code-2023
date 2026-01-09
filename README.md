@@ -32,7 +32,7 @@ Well, now it's 2025 and I'm using Rust instead.
 20. `**` Circuits, in-degree of a directed graph edge, periods
 21. `**` Geometry, BFS, parity, modular arithmetic, special-cases-in-the-input
 22. `**` Collision detection, surprisingly tractable
-23. `  `
+23. `**` Longest-path problem, strongly-connected components, subgraphs and supergraphs, suprisingly tractable
 24. `  `
 25. `  `
 
@@ -50,6 +50,7 @@ represent the puzzle as a large object, rather than parsing the input in a `part
 - There might be substantial performance benefits to using a smaller type where possible (such as i32, i16, or i8 instead of i64, which is isize on a 64-bit compilation target).
 - You can index a HashMap entry with square brackets.
 - I would think you should always be able to model a decision tree as a DAG.
+- `RefCell` is OK for those situations where you just need to write to something external, such as a memo table. Borrowing might be slow, though.
 
 # Libraries
 - [`num`](https://crates.io/crates/num)

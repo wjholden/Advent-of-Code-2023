@@ -1,6 +1,6 @@
 use std::{
     cell::RefCell,
-    collections::{HashMap, HashSet, VecDeque},
+    collections::{HashSet, VecDeque},
 };
 
 use advent_of_code_2023::*;
@@ -10,11 +10,34 @@ use ndarray::{Array, Array2};
 
 pub const PUZZLE: &str = include_str!("../../puzzles/day23.txt");
 
+/// Extremely hard problem. Yet another puzzle where we need to recognize a
+/// special case of an otherwise intractable problem.
+///
+/// At least, I think.
+///
+/// There is not, to my knowledge, an efficient algorithm to find the longest
+/// path in a graph. Fortunately, *this* graph forms a DAG in part 1, so we
+/// can quickly solve it with DFS.
+///
+/// For part 2, we turn the DAG into an undirected graph by adding the adjacency
+/// matrix to its own transpose. We must maintain a history of the nodes we've
+/// visited, otherwise we will get caught in an endless loop.
+///
+/// My original `longest_path` algorithm returned a value, but somehow I
+/// over-estimated the longest path distance this way. The workaround was to
+/// simply store all possible paths in a map, finding the maximum distance once
+/// finished.
+///
+/// Not my fastest AoC program. I will be interested to see what others did to
+/// make this quicker.
+///
+/// The object-oriented approach was not very helpful for this one. This was
+/// more about pure functions that I can easily test.
 fn main() {
     let d = Puzzle::new(PUZZLE).solve();
     println!("Part 1: {}", d.part1.unwrap());
-    println!("Part 2: {}", d.part2.unwrap()); // 6435 too high.
-    //println!("{:?}", Puzzle::time(PUZZLE));
+    println!("Part 2: {}", d.part2.unwrap());
+    println!("{:?}", Puzzle::time(PUZZLE));
 }
 
 #[derive(Debug)]
@@ -54,13 +77,29 @@ impl Tile {
     }
 }
 
-fn longest_path(
+pub fn longest_path(g: &DMatrix<usize>) -> Option<usize> {
+    let path = RefCell::new(vec![]);
+    let solutions = RefCell::new(Vec::new());
+    longest_path_internal(&g, 0, g.nrows() - 1, &path, &solutions);
+    debug_assert!(path.borrow().is_empty());
+    solutions
+        .borrow()
+        .iter()
+        .map(|v| {
+            v.iter()
+                .tuple_windows()
+                .fold(0, |acc, (i, j)| acc + 1 + g[(*i, *j)])
+        })
+        .max()
+}
+
+fn longest_path_internal(
     g: &DMatrix<usize>,
     src: usize,
     dst: usize,
     path: &RefCell<Vec<usize>>,
-    solutions: &RefCell<HashMap<Vec<usize>, usize>>,
-) -> usize {
+    solutions: &RefCell<Vec<Vec<usize>>>,
+) {
     debug_assert!(!path.borrow().contains(&src));
     path.borrow_mut().push(src);
 
@@ -69,36 +108,19 @@ fn longest_path(
             path.borrow().iter().sorted().dedup().count(),
             path.borrow().len()
         );
-
-        let distance = path
-            .borrow()
-            .iter()
-            .tuple_windows()
-            .fold(0, |acc, (i, j)| acc + 1 + g[(*i, *j)]);
-
-        solutions
-            .borrow_mut()
-            .insert(path.borrow().to_vec(), distance);
-        // println!("candidate solution with {path:?} and distance {distance}");
-        let out = path.borrow_mut().pop();
-        debug_assert_eq!(out, Some(src));
-        return 0;
-    }
-
-    let mut max = 0;
-    for j in 0..g.ncols() {
-        if let Some(w) = g.get((src, j))
-            && *w > 0
-        {
-            if path.borrow().contains(&j) {
-                continue;
+        solutions.borrow_mut().push(path.borrow().to_vec());
+    } else {
+        for j in 0..g.ncols() {
+            if let Some(w) = g.get((src, j))
+                && *w > 0
+                && !path.borrow().contains(&j)
+            {
+                longest_path_internal(g, j, dst, path, solutions);
             }
-            max = max.max(1 + w + longest_path(g, j, dst, path, solutions));
         }
     }
     let out = path.borrow_mut().pop();
     debug_assert_eq!(out, Some(src));
-    max
 }
 
 impl Puzzle {
@@ -221,24 +243,14 @@ impl Solver for Puzzle {
     fn solve(mut self) -> Self {
         let g = self.to_graph();
         println!("{g}");
-        let path = RefCell::new(vec![]);
-        let solutions = RefCell::new(HashMap::new());
-        self.part1 = Some(longest_path(&g, 0, g.nrows() - 1, &path, &solutions));
+        self.part1 = longest_path(&g);
 
         // The matrix is a DAG...right?
         debug_assert_eq!(g.component_mul(&g.transpose()).sum(), 0);
 
         let g2 = &g + &g.transpose();
         println!("{g2}");
-        solutions.borrow_mut().clear();
-
-        // self.part2 = Some(longest_path(&g2, 0, g.nrows() - 1, &path, &solutions));
-        debug_assert!(path.borrow().is_empty());
-        // println!("{solutions:?}");
-        longest_path(&g2, 0, g.nrows() - 1, &path, &solutions);
-        if let Some((_v, d)) = solutions.borrow().iter().max_by_key(|&(_, d)| d) {
-            self.part2 = Some(*d);
-        }
+        self.part2 = longest_path(&g2);
 
         self
     }
