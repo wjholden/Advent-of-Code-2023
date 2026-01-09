@@ -6,6 +6,51 @@ use nalgebra::{DMatrix, DVector, Vector3, dvector};
 
 pub const PUZZLE: &str = include_str!("../../puzzles/day24.txt");
 
+/// MiniZinc wasn't so great this time. The integer literals are huge (Geocode
+/// only handles 32-bit integers), and even so the solver might not have enough
+/// information to find a solution quickly. You can get this to work by adding
+/// bounds to each of the variables, but that won't work for the real puzzle.
+///
+/// ```minizinc
+/// % Use this editor as a MiniZinc scratch book
+/// var -100..100: vx;
+/// var -100..100: vy;
+/// var -100..100: vz;
+/// var -100..100: px;
+/// var -100..100: py;
+/// var -100..100: pz;
+///
+/// var 1..100: a;
+/// var 1..100: b;
+/// var 1..100: c;
+/// var 1..100: d;
+/// var 1..100: e;
+///
+/// % Hailstone: 19, 13, 30 @ -2, 1, -2
+/// constraint -2 * a + 19 == vx * a + px;
+/// constraint 1 * a + 13 == vy * a + py;
+/// constraint -2 * a + 30 == vz * a + pz;
+///
+/// % Hailstone: 18, 19, 22 @ -1, -1, -2
+/// constraint -1 * b + 18 == vx * b + px;
+/// constraint -1 * b + 19 == vy * b + py;
+/// constraint -2 * b + 22 == vz * b + pz;
+///
+/// % Hailstone: 20, 25, 34 @ -2, -2, -4
+/// constraint -2 * c + 20 == vx * c + px;
+/// constraint -2 * c + 25 == vy * c + py;
+/// constraint -4 * c + 34 == vz * c + pz;
+///
+/// % Hailstone: 12, 31, 28 @ -1, -2, -1
+/// constraint -1 * d + 12 == vx * d + px;
+/// constraint -2 * d + 31 == vy * d + py;
+/// constraint -1 * d + 28 == vz * d + pz;
+///
+/// % Hailstone: 20, 19, 15 @ 1, -5, -3
+/// constraint 1 * e + 20 == vx * e + px;
+/// constraint -5 * e + 19 == vy * e + py;
+/// constraint -3 * e + 15 == vz * e + pz;
+/// ```
 fn main() {
     let d = Puzzle::new(PUZZLE);
     let d = d.solve();
