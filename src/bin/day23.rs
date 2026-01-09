@@ -4,7 +4,6 @@ use std::{
 };
 
 use advent_of_code_2023::*;
-use itertools::Itertools;
 use nalgebra::DMatrix;
 use ndarray::{Array, Array2};
 
@@ -23,16 +22,13 @@ pub const PUZZLE: &str = include_str!("../../puzzles/day23.txt");
 /// matrix to its own transpose. We must maintain a history of the nodes we've
 /// visited, otherwise we will get caught in an endless loop.
 ///
-/// My original `longest_path` algorithm returned a value, but somehow I
-/// over-estimated the longest path distance this way. The workaround was to
-/// simply store all possible paths in a map, finding the maximum distance once
-/// finished.
-///
 /// Not my fastest AoC program. I will be interested to see what others did to
 /// make this quicker.
 ///
 /// The object-oriented approach was not very helpful for this one. This was
 /// more about pure functions that I can easily test.
+///
+/// See https://youtu.be/NTLYL7Mg2jU for a compact Python solution by HyperNeutrino.
 fn main() {
     let d = Puzzle::new(PUZZLE).solve();
     println!("Part 1: {}", d.part1.unwrap());
@@ -77,7 +73,8 @@ impl Tile {
     }
 }
 
-pub fn longest_path(g: &DMatrix<usize>) -> Option<usize> {
+#[cfg(not(feature = "faster"))]
+fn longest_path(g: &DMatrix<usize>) -> Option<usize> {
     let path = RefCell::new(vec![]);
     let solutions = RefCell::new(Vec::new());
     longest_path_internal(&g, 0, g.nrows() - 1, &path, &solutions);
@@ -86,6 +83,8 @@ pub fn longest_path(g: &DMatrix<usize>) -> Option<usize> {
         .borrow()
         .iter()
         .map(|v| {
+            use itertools::Itertools;
+
             v.iter()
                 .tuple_windows()
                 .fold(0, |acc, (i, j)| acc + 1 + g[(*i, *j)])
@@ -93,6 +92,17 @@ pub fn longest_path(g: &DMatrix<usize>) -> Option<usize> {
         .max()
 }
 
+#[cfg(feature = "faster")]
+fn longest_path(g: &DMatrix<usize>) -> Option<usize> {
+    let path = RefCell::new(Vec::new());
+    longest_path_internal(&g, 0, g.nrows() - 1, &path)
+}
+
+#[cfg(not(feature = "faster"))]
+/// This version of the algorithm writes all of the candidate solutions to a
+/// vector. We find the longest path later, after they're all in here. Not an
+/// artistic solution, but this is probably the only way to print the optimal
+/// solution if you wanted to see it.
 fn longest_path_internal(
     g: &DMatrix<usize>,
     src: usize,
@@ -104,6 +114,8 @@ fn longest_path_internal(
     path.borrow_mut().push(src);
 
     if src == dst {
+        use itertools::Itertools;
+
         debug_assert_eq!(
             path.borrow().iter().sorted().dedup().count(),
             path.borrow().len()
@@ -121,6 +133,43 @@ fn longest_path_internal(
     }
     let out = path.borrow_mut().pop();
     debug_assert_eq!(out, Some(src));
+}
+
+#[cfg(feature = "faster")]
+/// This version implicitly maintains the solution on the stack with pure
+/// recursion. More memory efficient than the other algorithm and slightly, but
+/// not massively, faster.
+fn longest_path_internal(
+    g: &DMatrix<usize>,
+    src: usize,
+    dst: usize,
+    path: &RefCell<Vec<usize>>,
+) -> Option<usize> {
+    if src == dst {
+        Some(0)
+    } else {
+        let mut distance: Option<usize> = None;
+        debug_assert!(!path.borrow().contains(&src));
+        path.borrow_mut().push(src);
+        for j in 0..g.ncols() {
+            if let Some(w) = g.get((src, j))
+                && *w > 0
+                && !path.borrow().contains(&j)
+            {
+                if let Some(candidate) = longest_path_internal(g, j, dst, path) {
+                    let candidate_distance = 1 + w + candidate;
+                    if let Some(current) = distance {
+                        distance = Some(current.max(candidate_distance));
+                    } else {
+                        distance = Some(candidate_distance);
+                    }
+                }
+            }
+        }
+        let out = path.borrow_mut().pop();
+        debug_assert_eq!(out, Some(src));
+        distance
+    }
 }
 
 impl Puzzle {
@@ -147,7 +196,7 @@ impl Puzzle {
                     Some(Tile::Path) => {
                         // Special case of the starting vertex. Verify this
                         // assumption before we do the same thing as above.
-                        assert!(self.intersections.contains(&(r, c)));
+                        debug_assert!(self.intersections.contains(&(r, c)));
                         let (w, dst) = self.explore_edge(&(r, c));
                         let v = self.intersections.iter().position(|&v| v == dst).unwrap();
                         // We didn't shift the start, so we need to subtract here
@@ -181,14 +230,14 @@ impl Puzzle {
                     && !elements.contains(&(r, c))
                 {
                     if self.intersections.contains(&(r, c)) {
-                        assert!(dst.is_none());
+                        debug_assert!(dst.is_none());
                         dst = Some((r, c));
                     } else {
                         queue.push_back((r, c));
                     }
                 }
             }
-            assert!(queue.len() <= 1);
+            debug_assert!(queue.len() <= 1);
         }
         (elements.len(), dst.unwrap())
     }
@@ -242,14 +291,14 @@ impl Solver for Puzzle {
 
     fn solve(mut self) -> Self {
         let g = self.to_graph();
-        println!("{g}");
+        // println!("{g}");
         self.part1 = longest_path(&g);
 
         // The matrix is a DAG...right?
         debug_assert_eq!(g.component_mul(&g.transpose()).sum(), 0);
 
         let g2 = &g + &g.transpose();
-        println!("{g2}");
+        // println!("{g2}");
         self.part2 = longest_path(&g2);
 
         self
