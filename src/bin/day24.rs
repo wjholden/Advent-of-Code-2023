@@ -248,9 +248,6 @@ fn tockman(hailstones: &[Hailstone]) -> (f64, f64, f64) {
     let mut y1 = Vector4::zeros();
     let mut a2 = Matrix4::zeros();
     let mut y2 = Vector4::zeros();
-    let pxr;
-    let pyr;
-    let pzr;
 
     for (i, (hi, hj)) in hailstones
         .iter()
@@ -286,13 +283,9 @@ fn tockman(hailstones: &[Hailstone]) -> (f64, f64, f64) {
     // let x1 = a1.lu().solve(&y1).unwrap();
     // let x2 = a2.lu().solve(&y2).unwrap();
 
-    assert_eq!(x1[0].round(), x2[0].round());
+    debug_assert_eq!(x1[0].round(), x2[0].round());
 
-    pxr = x1[0].round();
-    pyr = x1[1].round();
-    pzr = x2[1].round();
-
-    (pxr, pyr, pzr)
+    (x1[0].round(), x1[1].round(), x2[1].round())
 }
 
 impl Solver for Puzzle {
