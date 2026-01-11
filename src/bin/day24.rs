@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use advent_of_code_2023::*;
 use itertools::Itertools;
-use nalgebra::{DMatrix, DVector, Vector3, dvector};
+use nalgebra::{DMatrix, DVector, Matrix4, Vector3, Vector4, dvector};
 
 pub const PUZZLE: &str = include_str!("../../puzzles/day24.txt");
 
@@ -51,28 +51,51 @@ pub const PUZZLE: &str = include_str!("../../puzzles/day24.txt");
 /// constraint -5 * e + 19 == vy * e + py;
 /// constraint -3 * e + 15 == vz * e + pz;
 /// ```
+///
+/// Surprisingly, Mathematica can solve the example quickly with just four
+/// of the sample points:
+/// ```mathematica
+/// Solve[And[-2 a + 19 == vx a + px,
+///  a + 13 == vy a + py, -2 a + 30 == vz a + pz, -b + 18 ==
+///   vx b + px, -b + 19 == vy b + py, -2 b + 22 ==
+///   vz b + pz, -2 c + 20 == vx c + px, -2 c + 25 ==
+///   vy c + py, -4 c + 34 == vz c + pz, -d + 12 ==
+///   vx d + px, -2 d + 31 == vy d + py, -d + 28 == vz d + pz], {a, b, c,
+///   d, vx, vy, vz, px, py, pz}]
+/// ```
+///
+/// Pumpkin might be unusuable due to the size of the inputs.
+///
+/// Not trivial, but here's a nice approach by Andy Tockman:
+/// https://reddit.com/r/adventofcode/comments/18pnycy/2023_day_24_solutions/kepu26z/
+///
 fn main() {
     let d = Puzzle::new(PUZZLE);
     let d = d.solve();
     println!("Part 1: {}", d.part1.unwrap()); // 7655 too low.
-    //println!("Part 2: {}", d.part2.unwrap());
-    //println!("{:?}", Puzzle::time(PUZZLE));
+    println!("Part 2: {}", d.part2.unwrap());
+    println!("{:?}", Puzzle::time(PUZZLE));
+
+    println!(
+        "\nThe above part 2 solution is close, but contains a precision error. Use Mathematica:\n"
+    );
+    mathematica(&d.hailstones);
 }
 
 #[derive(Debug)]
 pub struct Puzzle {
     pub part1: Option<usize>,
-    pub part2: Option<usize>,
-    particles: Vec<Particle>,
+    pub part2: Option<f64>,
+    hailstones: Vec<Hailstone>,
 }
 
 #[derive(Debug, PartialEq)]
-struct Particle {
+struct Hailstone {
     position: Vector3<f64>,
     velocity: Vector3<f64>,
 }
 
-impl Display for Particle {
+impl Display for Hailstone {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -88,7 +111,7 @@ impl Display for Particle {
     }
 }
 
-impl Particle {
+impl Hailstone {
     fn new(line: &str) -> Self {
         let x: Vec<f64> = line
             .replace(" ", "")
@@ -122,6 +145,10 @@ impl Particle {
     ///
     /// We check for the parallel case with a tricky division. This is just
     /// `x1 / y1 = x2 / y2 ==> x1 * y2 = x2 * y1`.
+    ///
+    /// If successful, this function returns two vectors: the position of the
+    /// intersection (only for `self`) and the times that the intersection
+    /// would occur.
     fn intersection_without_z(&self, other: &Self) -> Option<(DVector<f64>, DVector<f64>)> {
         let a = self.velocity[0];
         let b = other.velocity[0];
@@ -133,34 +160,148 @@ impl Particle {
         let y2 = dvector![other.position[0], other.position[1]];
 
         if a * d == b * c {
+            // Hailstones have parallel velocities.
             None
         } else {
-            let a = DMatrix::from_columns(&[v1.clone(), -v2]);
-            // println!("{a}");
-            let y = &y2 - &y1;
-            let x = &a.try_inverse().unwrap() * &y;
-            let intersection = v1.column(0) * x[0] + &y1;
+            let velocities = DMatrix::from_columns(&[v1.clone(), -v2]);
+            let positions = &y2 - &y1;
+            let times = &velocities.try_inverse().unwrap() * &positions;
+            let intersection_location = v1.column(0) * times[0] + &y1;
 
-            // println!("{x}");
-            // println!("{y}");
-
-            Some((intersection, x))
-            // if x[0].is_sign_negative() || x[1].is_sign_negative() {
-            //     None
-            // } else {
-            //     Some(v1.column(0) * x[0] + &y1)
-            // }
+            Some((intersection_location, times))
         }
     }
+
+    fn to_constraints(&self, time: usize) -> Vec<String> {
+        ["x", "y", "z"]
+            .iter()
+            .enumerate()
+            .map(|(i, var)| {
+                format!(
+                    "{velocity}*t{time}+{position}==v{var}*t{time}+p{var}",
+                    velocity = self.velocity[i],
+                    position = self.position[i]
+                )
+            })
+            .collect()
+    }
+}
+
+fn mathematica(hailstones: &[Hailstone]) {
+    let n = 3;
+    let constraints = hailstones
+        .iter()
+        .enumerate()
+        .take(n)
+        .fold(Vec::new(), |mut acc, (i, hailstone)| {
+            acc.append(&mut hailstone.to_constraints(i));
+            acc
+        })
+        .join(",");
+    let vars = (0..n).map(|i| format!("t{i}")).join(",");
+    let mathematica_solution = format!("Solve[And[{constraints}],{{{vars},px,py,pz,vx,vy,vz}}]");
+    println!("{mathematica_solution}");
+}
+
+/// https://www.reddit.com/r/adventofcode/comments/18q40he/2023_day_24_part_2_a_straightforward_nonsolver/
+///
+/// Let `vr` and `pr` be the velocity and position of the rock. Let `vi` and `pi` be
+/// the velocity and position of hailstone `i`.
+///
+/// We get an intersection when `vr * ti + pr = vi * ti + pi`. That's really
+/// seven unknowns: `x`, `y`, and `z` for both `vr` and `pr`, and also `ti`. Because `ti` is
+/// different for every hailstone, adding another equation would only add yet
+/// another unknown.
+///
+/// If we break these out into components (`x`, `y`, and `z`) we get
+///
+/// `ti = (pxr - pxi) / (vxi - vxr) == (pyr - pyi) / (pyi - pyr) = (pzr - pzi) / (pzi - pzr)`.
+///
+/// We can use this to ignore the times altogether!
+///
+/// Take only the `x` and `y` components.
+///
+/// `(pxr - pxi)(vyi - vyr) == (pyr - pyi)(vxi - vxr)`
+///
+/// Expand.
+///
+/// `-(pxi vyi) + pxr vyi + pxi vyr - pxr vyr == -(pyi vxi) + pyr vxi + pyi vxr - pyr vxr`
+///
+/// Now we rearrange the terms to put the rock-only terms on the left-hand side.
+///
+/// `pyr vxr - pxr vyr == -(pyi vxi) + pyr vxi + pyi vxr +(pxi vyi) -pxr vyi -pxi vyr`
+///
+/// The sum `pyr vxr - pxr vyr` never changes. We can choose another hailstone, `j`,
+/// and now we can set those two equations equal to another.
+///
+/// `-(pyi vxi) + pyr vxi + pyi vxr +(pxi vyi) -pxr vyi -pxi vyr == -(pyj vxj) + pyr vxj + pyj vxr +(pxj vyj) -pxr vyj -pxj vyr`
+///
+/// Move the rock terms to one side.
+///
+/// `pyr vxi + pyi vxr -pxr vyi -pxi vyr - pyr vxj - pyj vxr +pxr vyj +pxj vyr == -(pyj vxj) +(pxj vyj) +(pyi vxi) - (pxi vyi)`
+///
+/// `(-vyi + vyj) pxr + (vxi - vxj) pyr + (pyi - pyj) vxr + (-pxi + pxj) vyr == -(pyj vxj) + (pxj vyj) + (pyi vxi) -(pxi vyi)`
+///
+/// Looks scary, but with just two more points we can solve this with linear algebra.
+fn tockman(hailstones: &[Hailstone]) -> (f64, f64, f64) {
+    let mut a1 = Matrix4::zeros();
+    let mut y1 = Vector4::zeros();
+    let mut a2 = Matrix4::zeros();
+    let mut y2 = Vector4::zeros();
+    let pxr;
+    let pyr;
+    let pzr;
+
+    for (i, (hi, hj)) in hailstones
+        .iter()
+        // .skip(1)
+        .tuple_windows()
+        .take(4)
+        .enumerate()
+    {
+        if let [pxi, pyi, pzi] = hi.position.as_slice()
+            && let [pxj, pyj, pzj] = hj.position.as_slice()
+            && let [vxi, vyi, vzi] = hi.velocity.as_slice()
+            && let [vxj, vyj, vzj] = hj.velocity.as_slice()
+        {
+            // (dy'-dy) X + (dx-dx') Y + (y-y') DX + (x'-x) DY
+            a1[(i, 0)] = -vyi + vyj; // pxr
+            a1[(i, 1)] = vxi - vxj; // pyr
+            a1[(i, 2)] = pyi - pyj; // vxr
+            a1[(i, 3)] = -pxi + pxj; // vyr
+
+            a2[(i, 0)] = -vzi + vzj; // pxr
+            a2[(i, 1)] = vxi - vxj; // pzr
+            a2[(i, 2)] = pzi - pzj; // vxr
+            a2[(i, 3)] = -pxi + pxj; // vzr
+
+            // = x' dy' - y' dx' - x dy + y dx
+            y1[i] = -(pyj * vxj) + (pxj * vyj) + (pyi * vxi) - (pxi * vyi);
+            y2[i] = -(pzj * vxj) + (pxj * vzj) + (pzi * vxi) - (pxi * vzi);
+        }
+    }
+
+    let x1 = a1.try_inverse().unwrap() * y1;
+    let x2 = a2.try_inverse().unwrap() * y2;
+    // let x1 = a1.lu().solve(&y1).unwrap();
+    // let x2 = a2.lu().solve(&y2).unwrap();
+
+    assert_eq!(x1[0].round(), x2[0].round());
+
+    pxr = x1[0].round();
+    pyr = x1[1].round();
+    pzr = x2[1].round();
+
+    (pxr, pyr, pzr)
 }
 
 impl Solver for Puzzle {
     fn new(input: &str) -> Self {
-        let particles = input.lines().map(Particle::new).collect();
+        let hailstones = input.lines().map(Hailstone::new).collect();
         Self {
             part1: None,
             part2: None,
-            particles,
+            hailstones,
         }
     }
 
@@ -187,13 +328,26 @@ impl Solver for Puzzle {
         }
 
         let mut part1 = 0;
-        let n = self.particles.len();
+        let n = self.hailstones.len();
         for (i, j) in (0..n).cartesian_product(0..n) {
             if i >= j {
                 continue;
             }
-            let p1 = &self.particles[i];
-            let p2 = &self.particles[j];
+            let p1 = &self.hailstones[i];
+            let p2 = &self.hailstones[j];
+
+            if p1.position == p2.position {
+                println!("Same starting position:");
+                println!("- {p1}");
+                println!("- {p2}");
+            }
+
+            if p1.velocity == p2.velocity {
+                println!("Same velocity:");
+                println!("- {p1}");
+                println!("- {p2}");
+            }
+
             #[cfg(test)]
             {
                 println!("Hailstone A: {p1}");
@@ -250,14 +404,17 @@ impl Solver for Puzzle {
                 println!();
             }
         }
-
         self.part1 = Some(part1);
+
+        let (a, b, c) = tockman(&self.hailstones);
+        self.part2 = Some(a + b + c);
+
         self
     }
 }
 
 #[cfg(test)]
-mod puzzle_name {
+mod never_tell_me_the_odds {
     use super::*;
 
     const SAMPLE: &str = include_str!("../../samples/day24.txt");
@@ -269,6 +426,6 @@ mod puzzle_name {
 
     #[test]
     fn test2() {
-        assert_eq!(Puzzle::new(SAMPLE).solve().part2, Some(47));
+        assert_eq!(Puzzle::new(SAMPLE).solve().part2, Some(47.0));
     }
 }
