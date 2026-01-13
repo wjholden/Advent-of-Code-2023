@@ -33,8 +33,8 @@ Well, now it's 2025 and I'm using Rust instead.
 21. `**` Geometry, BFS, parity, modular arithmetic, special-cases-in-the-input
 22. `**` Collision detection, surprisingly tractable
 23. `**` Longest-path problem, strongly-connected components, subgraphs and supergraphs, suprisingly tractable
-24. `  `
-25. `  `
+24. `**` Linear algebra, constraint solvers, precision errors
+25. `**` Graph partitions
 
 # Lessons learned
 - **Always look for unstated assumptions in the input.**
@@ -51,9 +51,16 @@ represent the puzzle as a large object, rather than parsing the input in a `part
 - You can index a HashMap entry with square brackets.
 - I would think you should always be able to model a decision tree as a DAG.
 - `RefCell` is OK for those situations where you just need to write to something external, such as a memo table. Borrowing might be slow, though.
+- nalgebra and ndarray have some overlapping capabilities, but in general they have two different roles.
+  Use nalgebra if you're doing linear algebra. Use ndarray if you want generic 2D (or more) arrays.
+  I nalgebra can store arbitrary data (AFAIK) and ndarray doesn't have as rich math functionality.
+- There are some junk crates out there these days. The commit history is an early indicator to check these days.
+  If all the commits happened in a short time and then the project has no activity, then it might not be a quality product.
 
 # Libraries
 - [`num`](https://crates.io/crates/num)
+- [`nalgebra`](https://nalgebra.rs/)
+- [`ndarray`](https://github.com/rust-ndarray/ndarray)
 
 Writing this down here for posterity. (I know this isn't Rust.) Check out [Ghostty](https://ghostty.org) as an alternative terminal emulator for Linux and Mac.
 
