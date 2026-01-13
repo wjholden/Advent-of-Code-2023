@@ -56,6 +56,8 @@ represent the puzzle as a large object, rather than parsing the input in a `part
   I nalgebra can store arbitrary data (AFAIK) and ndarray doesn't have as rich math functionality.
 - There are some junk crates out there these days. The commit history is an early indicator to check these days.
   If all the commits happened in a short time and then the project has no activity, then it might not be a quality product.
+- If you're trying to use [Rayon](https://crates.io/crates/rayon) to parallelize a task and it won't compile,
+  this probably tells you that the thing you're trying to do is not possible to achieve safely.
 
 # Libraries
 - [`num`](https://crates.io/crates/num)
