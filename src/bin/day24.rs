@@ -69,6 +69,8 @@ pub const PUZZLE: &str = include_str!("../../puzzles/day24.txt");
 /// Not trivial, but here's a nice approach by Andy Tockman:
 /// https://reddit.com/r/adventofcode/comments/18pnycy/2023_day_24_solutions/kepu26z/
 ///
+/// I also want to try this brilliant solution by evouga:
+/// https://www.reddit.com/r/adventofcode/comments/18pnycy/comment/kepu26z/
 fn main() {
     let d = Puzzle::new(PUZZLE);
     let d = d.solve();

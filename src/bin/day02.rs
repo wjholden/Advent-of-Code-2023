@@ -6,18 +6,20 @@ use nom::multi::separated_list1;
 use nom::sequence::{delimited, separated_pair};
 use nom::{IResult, Parser};
 
+pub const PUZZLE: &str = include_str!("../../puzzles/day02.txt");
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let puzzle = include_str!("../../puzzles/day02.txt").trim();
-    println!("Part 1: {}", part1(puzzle)?);
-    println!("Part 2: {}", part2(puzzle)?);
+    let puzzle = PUZZLE.trim();
+    let games = parse_games(puzzle)?;
+    println!("Part 1: {}", part1(&games)?);
+    println!("Part 2: {}", part2(&games)?);
     Ok(())
 }
 
-fn part1(input: &'static str) -> Result<u32, Box<dyn Error>> {
-    let games = parse_games(input)?;
+pub fn part1(games: &[Game]) -> Result<u32, Box<dyn Error>> {
     let mut part1 = 0;
     'outer: for game in games {
-        for round in game.subsets {
+        for round in game.subsets.iter() {
             if round.red > 12 || round.green > 13 || round.blue > 14 {
                 continue 'outer;
             }
@@ -27,14 +29,13 @@ fn part1(input: &'static str) -> Result<u32, Box<dyn Error>> {
     Ok(part1)
 }
 
-fn part2(input: &'static str) -> Result<u32, Box<dyn Error>> {
-    let games = parse_games(input)?;
+pub fn part2(games: &[Game]) -> Result<u32, Box<dyn Error>> {
     let mut part2 = 0;
     for game in games {
         let mut red = 0;
         let mut green = 0;
         let mut blue = 0;
-        for round in game.subsets {
+        for round in game.subsets.iter() {
             red = red.max(round.red);
             blue = blue.max(round.blue);
             green = green.max(round.green);
@@ -45,7 +46,7 @@ fn part2(input: &'static str) -> Result<u32, Box<dyn Error>> {
 }
 
 #[derive(Debug)]
-struct Game {
+pub struct Game {
     id: u32,
     subsets: Vec<Subset>,
 }
@@ -57,7 +58,7 @@ struct Subset {
     green: u32,
 }
 
-fn parse_games(input: &'static str) -> Result<Vec<Game>, Box<dyn Error>> {
+pub fn parse_games(input: &'static str) -> Result<Vec<Game>, Box<dyn Error>> {
     let (_input, games) = separated_list1(tag("\n"), parse_game).parse(input)?;
     Ok(games)
 }
@@ -94,7 +95,7 @@ fn parse_subset(input: &str) -> IResult<&str, Subset> {
 }
 
 #[cfg(test)]
-mod day02 {
+mod cube_conundrum {
     use super::*;
 
     const SAMPLE: &str = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
@@ -105,11 +106,13 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
     #[test]
     fn test1() {
-        assert_eq!(8, part1(SAMPLE).unwrap())
+        let g = parse_games(SAMPLE).unwrap();
+        assert_eq!(8, part1(&g).unwrap())
     }
 
     #[test]
     fn test2() {
-        assert_eq!(2286, part2(SAMPLE).unwrap())
+        let g = parse_games(SAMPLE).unwrap();
+        assert_eq!(2286, part2(&g).unwrap())
     }
 }

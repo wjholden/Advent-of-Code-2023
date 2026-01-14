@@ -10,7 +10,7 @@ Well, now it's 2025 and I'm using Rust instead.
 
 # Daily Stars and Themes
 
-1. `##`
+1. `##` Overlapping matches, don't be too greedy
 2. `**`
 3. `**`
 4. `**`
@@ -84,6 +84,8 @@ Writing this down here for posterity. (I know this isn't Rust.) Check out [Ghost
 - [HOPL-IV](https://dl.acm.org/do/10.1145/event-12215/abs/)
 - [Pokemon team optimization](https://nchagnet.pages.dev/blog/pokemon-team-optimization/)
 - [A Geometric solution to advent of code 2023, day 21](https://github.com/villuna/aoc23/wiki/A-Geometric-solution-to-advent-of-code-2023,-day-21)
+- [Rustlings](https://rustlings.rust-lang.org/)
+- [Maybe Comments SHOULD Explain 'What'](https://www.hillelwayne.com/post/what-comments/)
 
 # Emacs-style keybindings for Zed
 
