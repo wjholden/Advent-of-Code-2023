@@ -2,27 +2,32 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
+pub const PUZZLE: &str = include_str!("../../puzzles/day04.txt");
+
 fn main() {
-    let puzzle = include_str!("../../puzzles/day04.txt").trim();
-    println!("Part 1: {}", part1(puzzle));
-    println!("Part 2: {}", part2(puzzle));
+    println!("Part 1: {}", part1(PUZZLE));
+    println!("Part 2: {}", part2(PUZZLE));
 }
 
-fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> usize {
     let mut points = 0;
     for line in input.lines() {
-        let [_card, winners, numbers] = line.split(|c| c == ':' || c == '|').map(str::trim).collect_array().unwrap();
+        let [_card, winners, numbers] = line
+            .split(|c| c == ':' || c == '|')
+            .map(str::trim)
+            .collect_array()
+            .unwrap();
         let winners: HashSet<&str> = HashSet::from_iter(winners.split_ascii_whitespace());
         let numbers: HashSet<&str> = HashSet::from_iter(numbers.split_ascii_whitespace());
         let n = winners.intersection(&numbers).count() as u32;
         if n > 0 {
-            points += 2_u64.pow(n - 1);
+            points += 2usize.pow(n - 1);
         }
     }
     points
 }
 
-fn part2(input: &str) -> usize {
+pub fn part2(input: &str) -> usize {
     let mut cards = vec![];
     for line in input.lines() {
         let tmp: Vec<_> = line.split(|c| c == ':' || c == '|').collect();
@@ -31,13 +36,16 @@ fn part2(input: &str) -> usize {
         let match_count = w.intersection(&n).count();
         cards.push(Card {
             match_count,
-            card_count: 1
+            card_count: 1,
         });
     }
     //dbg!(&cards);
     for i in 0..cards.len() {
-        let Card { match_count, card_count } = cards[i];
-        for j in i+1..=i+match_count {
+        let Card {
+            match_count,
+            card_count,
+        } = cards[i];
+        for j in i + 1..=i + match_count {
             cards[j].card_count += card_count;
         }
     }

@@ -189,7 +189,7 @@ impl Solver for Puzzle {
                         }
                     }
                     if part2.len() == 4 {
-                        println!("{part2:?}");
+                        // println!("{part2:?}");
                         self.part2 = Some(part2.values().product());
                         break 'outer;
                     }

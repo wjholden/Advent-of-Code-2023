@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+pub const PUZZLE: &str = include_str!("../../puzzles/day12.txt");
+
 /// The matches function was originally in the SpringRow object, but
 /// I had to move it because `&mut self` wasn't playing nice with
 /// dynamic programming.
@@ -30,25 +32,25 @@ use std::collections::HashMap;
 /// crate might have been usable for this task, but probably
 /// not when using the object-oriented approach.
 pub fn main() {
-    let mut springs = Springs::new(include_str!("../../puzzles/day12.txt"));
+    let mut springs = Springs::new(PUZZLE);
     println!("Part 1: {}", springs.total_arrangements());
     springs.unfold();
     println!("Part 2: {}", springs.total_arrangements());
 }
 
 #[derive(Debug)]
-struct Springs(Vec<SpringRow>);
+pub struct Springs(Vec<SpringRow>);
 
 impl Springs {
-    fn new(input: &str) -> Self {
+    pub fn new(input: &str) -> Self {
         Self(input.lines().map(SpringRow::new).collect())
     }
 
-    fn total_arrangements(&self) -> usize {
+    pub fn total_arrangements(&self) -> usize {
         self.0.iter().map(SpringRow::arrangements).sum()
     }
 
-    fn unfold(&mut self) {
+    pub fn unfold(&mut self) {
         for row in &mut self.0 {
             row.unfold();
         }

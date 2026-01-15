@@ -8,6 +8,8 @@ At the time, I had the best of intentions to practice Java in 2023.
 
 Well, now it's 2025 and I'm using Rust instead.
 
+![Solutions and runtimes for all problems in Ratatui](solutions.png)
+
 # Daily Stars and Themes
 
 1. `##` Overlapping matches, don't be too greedy

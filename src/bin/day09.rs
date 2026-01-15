@@ -1,8 +1,10 @@
+pub const PUZZLE: &str = include_str!("../../puzzles/day09.txt");
+
 fn main() {
-    let mut histories = parse(include_str!("../../puzzles/day09.txt"));
+    let mut histories = parse(PUZZLE);
     println!(
         "Part 1: {}",
-        histories.iter().map(|v| predict(v)).sum::<i128>()
+        histories.iter().map(|v| predict(v)).sum::<isize>()
     );
 
     // This is a clear idiom for mutating all elements of an array.
@@ -13,7 +15,7 @@ fn main() {
 
     println!(
         "Part 2: {}",
-        histories.iter().map(|v| predict(v)).sum::<i128>()
+        histories.iter().map(|v| predict(v)).sum::<isize>()
     );
 }
 
@@ -34,7 +36,7 @@ fn main() {
 /// predicts the new term in the original sequence by adding.
 ///
 /// It's a neat take on differentiation.
-fn predict(history: &[i128]) -> i128 {
+pub fn predict(history: &[isize]) -> isize {
     let n = history.len();
     let mut v = history.to_vec();
     for i in 0..n - 1 {
@@ -45,12 +47,12 @@ fn predict(history: &[i128]) -> i128 {
     v.iter().sum()
 }
 
-fn parse(input: &str) -> Vec<Vec<i128>> {
+pub fn parse(input: &str) -> Vec<Vec<isize>> {
     input
         .lines()
         .map(|line| {
             line.split_ascii_whitespace()
-                .flat_map(str::parse::<i128>)
+                .flat_map(str::parse::<isize>)
                 .collect()
         })
         .collect()

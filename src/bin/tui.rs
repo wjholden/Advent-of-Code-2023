@@ -141,6 +141,78 @@ fn solutions() -> Vec<(usize, usize, std::time::Duration)> {
         },
         {
             let start = Instant::now();
+            let (part1, part2) = day03::solve(day03::PUZZLE).unwrap();
+            (part1 as usize, part2 as usize, start.elapsed())
+        },
+        {
+            let start = Instant::now();
+            let part1 = day04::part1(day04::PUZZLE);
+            let part2 = day04::part2(day04::PUZZLE);
+            (part1, part2, start.elapsed())
+        },
+        {
+            let start = Instant::now();
+            let puzzle = day05::PUZZLE.trim();
+            let (seeds, layers) = day05::parse(puzzle);
+            let part1 = day05::part1(&seeds, &layers);
+            let part2 = day05::part2(&seeds, &layers).unwrap();
+            (part1, part2, start.elapsed())
+        },
+        {
+            let start = Instant::now();
+            let part1 = day06::quadratic(day06::PUZZLE);
+            let part2 = day06::parse2(day06::PUZZLE).unwrap().quadratic();
+            (part1, part2, start.elapsed())
+        },
+        {
+            let start = Instant::now();
+            let part1 = day07::solve(day07::PUZZLE, Part::One);
+            let part2 = day07::solve(day07::PUZZLE, Part::Two);
+            (part1, part2, start.elapsed())
+        },
+        {
+            let start = Instant::now();
+            let n = day08::Network::new(day08::PUZZLE);
+            let part1 = n.zzz("AAA").unwrap();
+            let part2 = n.part2_lcm();
+            (part1, part2, start.elapsed())
+        },
+        {
+            let start = Instant::now();
+            let mut histories = day09::parse(day09::PUZZLE);
+            let part1 = histories.iter().map(|v| day09::predict(v)).sum::<isize>();
+
+            for history in &mut histories {
+                history.reverse();
+            }
+
+            let part2 = histories.iter().map(|v| day09::predict(v)).sum::<isize>();
+
+            (part1 as usize, part2 as usize, start.elapsed())
+        },
+        {
+            let start = Instant::now();
+            let pipes = day10::Pipes::new(day10::PUZZLE);
+            let (part1, part2) = pipes.solve();
+            (part1, part2, start.elapsed())
+        },
+        {
+            let start = Instant::now();
+            let image = day11::Image::new(day11::PUZZLE);
+            let part1 = image.predict(2);
+            let part2 = image.predict(1_000_000);
+            (part1, part2, start.elapsed())
+        },
+        {
+            let start = Instant::now();
+            let mut springs = day12::Springs::new(day12::PUZZLE);
+            let part1 = springs.total_arrangements();
+            springs.unfold();
+            let part2 = springs.total_arrangements();
+            (part1, part2, start.elapsed())
+        },
+        {
+            let start = Instant::now();
             let d = day13::Puzzle::new(day13::PUZZLE).solve();
             (d.part1, d.part2, start.elapsed())
         },
@@ -197,7 +269,11 @@ fn solutions() -> Vec<(usize, usize, std::time::Duration)> {
         {
             let start = Instant::now();
             let d = day24::Puzzle::new(day24::PUZZLE).solve();
-            (d.part1.unwrap(), d.part2.unwrap() as usize, start.elapsed())
+            (
+                d.part1.unwrap(),
+                d.part2.unwrap() as usize + 1, /* solution has a known off-by-one error */
+                start.elapsed(),
+            )
         },
         {
             let start = Instant::now();

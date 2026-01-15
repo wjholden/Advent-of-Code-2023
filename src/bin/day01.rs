@@ -7,8 +7,6 @@ pub const PUZZLE: &str = include_str!("../../puzzles/day01.txt");
 fn main() {
     println!("Part 1: {}", solve(PUZZLE, Part::One));
     println!("Part 2: {}", solve(PUZZLE, Part::Two));
-    //println!("Part 2: {}", d.part2.unwrap());
-    //println!("{:?}", Puzzle::time(PUZZLE));
 }
 
 pub fn solve(input: &str, part: Part) -> usize {

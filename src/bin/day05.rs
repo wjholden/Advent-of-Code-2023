@@ -1,59 +1,71 @@
+pub const PUZZLE: &str = include_str!("../../puzzles/day05.txt");
+
 fn main() {
-    let puzzle = include_str!("../../puzzles/day05.txt").trim();
+    let puzzle = PUZZLE.trim();
     let (seeds, layers) = parse(puzzle);
     println!("Part 1: {}", part1(&seeds, &layers));
     println!("Part 2: {}", part2(&seeds, &layers).unwrap());
 }
 
-fn part1(seeds: &[u64], layers: &[Layer]) -> u64 {
-    seeds.iter().map(|&seed| {
-        seed_to_location(seed, layers)
-    }).min().unwrap()
+pub fn part1(seeds: &[usize], layers: &[Layer]) -> usize {
+    seeds
+        .iter()
+        .map(|&seed| seed_to_location(seed, layers))
+        .min()
+        .unwrap()
 }
 
-fn part2(seeds: &[u64], layers: &[Layer]) -> Option<u64> {
-    let goals = seeds.chunks(2).map(|range| {
-        |value| range[0] <= value && value < range[0] + range[1]
-    }).collect::<Vec<_>>();
+pub fn part2(seeds: &[usize], layers: &[Layer]) -> Option<usize> {
+    let goals = seeds
+        .chunks(2)
+        .map(|range| |value| range[0] <= value && value < range[0] + range[1])
+        .collect::<Vec<_>>();
     for location in 1..100_000_000 {
         let seed = location_to_seed(location, layers);
         if goals.iter().any(|f| f(seed)) {
             //println!("Candidate solution: seed {seed} -> location {}", seed_to_location(seed, layers));
-            return Some(location)
+            return Some(location);
         }
     }
     None
 }
 
-fn seed_to_location(seed: u64, layers: &[Layer]) -> u64 {
+fn seed_to_location(seed: usize, layers: &[Layer]) -> usize {
     let mut value = seed;
     'outer: for layer in layers {
         for rule in layer {
             if rule.src <= value && value < rule.src + rule.len {
                 value = rule.dst + (value - rule.src);
-                continue 'outer
+                continue 'outer;
             }
         }
     }
     value
 }
 
-fn location_to_seed(location: u64, layers: &[Layer]) -> u64 {
+fn location_to_seed(location: usize, layers: &[Layer]) -> usize {
     let mut value = location;
     'outer: for layer in layers.iter().rev() {
         for rule in layer {
             if rule.dst <= value && value < rule.dst + rule.len {
                 value = rule.src + (value - rule.dst);
-                continue 'outer
+                continue 'outer;
             }
         }
     }
     value
 }
 
-fn parse(input: &str) -> (Vec<u64>, Vec<Layer>) {
+pub fn parse(input: &str) -> (Vec<usize>, Vec<Layer>) {
     let mut lines = input.lines();
-    let seeds = lines.next().unwrap().split_at(7).1.split_ascii_whitespace().map(|s| s.parse().unwrap()).collect();
+    let seeds = lines
+        .next()
+        .unwrap()
+        .split_at(7)
+        .1
+        .split_ascii_whitespace()
+        .map(|s| s.parse().unwrap())
+        .collect();
     let lines = lines.skip(1);
     let mut layers = Vec::new();
     for line in lines {
@@ -63,7 +75,7 @@ fn parse(input: &str) -> (Vec<u64>, Vec<Layer>) {
             l => {
                 let last = layers.len() - 1;
                 layers[last].push(Rule::new(l))
-            },
+            }
         }
     }
     (seeds, layers)
@@ -72,16 +84,24 @@ fn parse(input: &str) -> (Vec<u64>, Vec<Layer>) {
 type Layer = Vec<Rule>;
 
 #[derive(Debug)]
-struct Rule {
-    dst: u64,
-    src: u64,
-    len: u64,
+pub struct Rule {
+    dst: usize,
+    src: usize,
+    len: usize,
 }
 
 impl Rule {
     fn new(line: &str) -> Self {
-        let line: Vec<u64> = line.split_ascii_whitespace().map(str::parse).map(Result::unwrap).collect();
-        Self { dst: line[0], src: line[1], len: line[2] }
+        let line: Vec<usize> = line
+            .split_ascii_whitespace()
+            .map(str::parse)
+            .map(Result::unwrap)
+            .collect();
+        Self {
+            dst: line[0],
+            src: line[1],
+            len: line[2],
+        }
     }
 }
 

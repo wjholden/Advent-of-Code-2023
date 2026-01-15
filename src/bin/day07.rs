@@ -2,13 +2,14 @@ use std::{cmp::Ordering, collections::HashMap};
 
 use advent_of_code_2023::Part;
 
+pub const PUZZLE: &str = include_str!("../../puzzles/day07.txt");
+
 fn main() {
-    let puzzle = include_str!("../../puzzles/day07.txt");
-    println!("Part 1: {}", solve(puzzle, Part::One));
-    println!("Part 2: {}", solve(puzzle, Part::Two));
+    println!("Part 1: {}", solve(PUZZLE, Part::One));
+    println!("Part 2: {}", solve(PUZZLE, Part::Two));
 }
 
-fn solve(input: &str, part: Part) -> usize {
+pub fn solve(input: &str, part: Part) -> usize {
     let mut hands = input.lines().map(Hand::new).collect::<Vec<_>>();
     let cards = match part {
         Part::One => "23456789TJQKA",

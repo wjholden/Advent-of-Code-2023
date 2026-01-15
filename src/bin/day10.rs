@@ -7,6 +7,8 @@ use std::{
 
 use num::Complex;
 
+pub const PUZZLE: &str = include_str!("../../puzzles/day10.txt");
+
 /// This was a tricky one! I decided to first explore the path using
 /// an object-oriented approach. Then, I follow the path again to
 /// trace which empty tiles are to the left and right. This gets
@@ -26,11 +28,11 @@ use num::Complex;
 /// - [Shoelace formula](https://www.reddit.com/r/adventofcode/comments/18f1sgh/comment/kcugm6t/)
 ///   for the area.
 fn main() {
-    let pipes = Pipes::new(include_str!("../../puzzles/day10.txt"));
+    let pipes = Pipes::new(PUZZLE);
     let (part1, part2) = pipes.solve();
     println!("Part 1: {part1}");
     println!("Part 2: {part2}");
-    println!("{pipes}");
+    // println!("{pipes}");
 }
 
 pub struct Pipes {

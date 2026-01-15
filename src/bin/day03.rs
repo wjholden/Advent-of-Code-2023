@@ -3,15 +3,16 @@ use itertools::Itertools; // 0.14.0
 use regex::Regex; // 1.11.1
 use std::{collections::HashMap, error::Error};
 
+pub const PUZZLE: &str = include_str!("../../puzzles/day03.txt");
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let puzzle = include_str!("../../puzzles/day03.txt").trim();
-    let (part1, part2) = solve(puzzle)?;
+    let (part1, part2) = solve(PUZZLE)?;
     println!("Part 1: {}", part1);
     println!("Part 2: {}", part2);
     Ok(())
 }
 
-fn solve(input: &str) -> Result<(u32, u32), Box<dyn Error>> {
+pub fn solve(input: &str) -> Result<(u32, u32), Box<dyn Error>> {
     let mut part1 = 0;
     let mut part2 = HashMap::new();
     let grid = text_to_grid(input)?;

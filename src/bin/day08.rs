@@ -3,20 +3,22 @@ use std::collections::HashMap;
 
 use num::Integer;
 
+pub const PUZZLE: &str = include_str!("../../puzzles/day08.txt");
+
 fn main() {
-    let n = Network::new(include_str!("../../puzzles/day08.txt"));
+    let n = Network::new(PUZZLE);
     println!("Part 1: {}", n.zzz("AAA").unwrap());
     println!("Part 2: {}", n.part2_lcm());
 }
 
 #[derive(Debug)]
-struct Network<'a> {
+pub struct Network<'a> {
     turns: String,
     directions: HashMap<&'a str, Position<'a>>,
 }
 
 impl<'a> Network<'a> {
-    fn new(input: &'a str) -> Self {
+    pub fn new(input: &'a str) -> Self {
         let mut lines = input.lines();
         let turns = lines.next().unwrap().to_owned();
         let mut directions = HashMap::default();
@@ -30,7 +32,7 @@ impl<'a> Network<'a> {
         Self { turns, directions }
     }
 
-    fn zzz(&self, start: &str) -> Result<usize, ()> {
+    pub fn zzz(&self, start: &str) -> Result<usize, ()> {
         let mut p = start;
         let mut i = 0;
         for c in self.turns.chars().cycle() {
@@ -74,7 +76,7 @@ impl<'a> Network<'a> {
         Err(())
     }
 
-    fn part2_lcm(&self) -> usize {
+    pub fn part2_lcm(&self) -> usize {
         self.directions
             .keys()
             .filter(|k| k.ends_with("A"))

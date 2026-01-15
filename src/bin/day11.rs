@@ -1,7 +1,9 @@
 use std::collections::HashSet;
 
+pub const PUZZLE: &str = include_str!("../../puzzles/day11.txt");
+
 fn main() {
-    let image = Image::new(include_str!("../../puzzles/day11.txt"));
+    let image = Image::new(PUZZLE);
     println!("Part 1: {}", image.predict(2));
     println!("Part 2: {}", image.predict(1_000_000));
 }
@@ -12,12 +14,12 @@ struct Position {
     y: usize,
 }
 
-struct Image {
+pub struct Image {
     galaxies: Vec<Position>,
 }
 
 impl Image {
-    fn new(input: &str) -> Self {
+    pub fn new(input: &str) -> Self {
         let mut galaxies = Vec::new();
         for (row, line) in input.lines().enumerate() {
             for (col, c) in line.chars().enumerate() {
@@ -33,7 +35,7 @@ impl Image {
         Image { galaxies }
     }
 
-    fn predict(&self, expansion: usize) -> usize {
+    pub fn predict(&self, expansion: usize) -> usize {
         let occupied_rows: HashSet<usize> = self.galaxies.iter().map(|p| p.y).collect();
         let occupied_cols: HashSet<usize> = self.galaxies.iter().map(|p| p.x).collect();
         let mut total = 0;

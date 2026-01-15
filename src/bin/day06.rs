@@ -1,17 +1,18 @@
 use std::error::Error;
 
+pub const PUZZLE: &str = include_str!("../../puzzles/day06.txt");
+
 /// Daily themes: calculus!
 fn main() {
-    let puzzle = include_str!("../../puzzles/day06.txt");
-    println!("Part 1: {} ({})", part1(puzzle), quadratic(puzzle));
+    println!("Part 1: {} ({})", part1(PUZZLE), quadratic(PUZZLE));
     println!(
         "Part 2: {} ({})",
-        part2(puzzle),
-        parse2(puzzle).unwrap().quadratic()
+        part2(PUZZLE),
+        parse2(PUZZLE).unwrap().quadratic()
     );
 }
 
-fn quadratic(input: &str) -> usize {
+pub fn quadratic(input: &str) -> usize {
     parse1(input)
         .unwrap()
         .iter()
@@ -44,13 +45,13 @@ fn part2(input: &str) -> usize {
 }
 
 #[derive(PartialEq, Eq, Debug)]
-struct Record {
+pub struct Record {
     time: usize,
     distance: usize,
 }
 
 impl Record {
-    fn quadratic(&self) -> usize {
+    pub fn quadratic(&self) -> usize {
         // Quadratic formula: x = (-b ± √(b² - 4ac)) / 2a
         // d = h(t-h) → d = -h² + ht → 0 = -h² + ht - d
         // ± (0177), → (8730), ² (0178), √ (251)
@@ -91,7 +92,7 @@ fn parse1(input: &str) -> Result<Vec<Record>, Box<dyn Error>> {
     }
 }
 
-fn parse2(input: &str) -> Result<Record, Box<dyn Error>> {
+pub fn parse2(input: &str) -> Result<Record, Box<dyn Error>> {
     let input = input.replace(" ", "");
     let mut input = input.split([':', '\n']);
     input.next();

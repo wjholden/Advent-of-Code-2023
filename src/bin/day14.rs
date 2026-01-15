@@ -246,7 +246,7 @@ impl Solver for Puzzle {
     fn solve(mut self) -> Self {
         let clone = self.clone();
 
-        println!("{self}");
+        // println!("{self}");
         let mut changes;
         loop {
             (self, changes) = self.tilt(Direction::North);
@@ -255,7 +255,7 @@ impl Solver for Puzzle {
             }
         }
         let part1 = self.load();
-        println!("{self}");
+        // println!("{self}");
         self = clone;
         self.part1 = part1;
 
